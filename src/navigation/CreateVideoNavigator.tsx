@@ -7,12 +7,11 @@ import PostVideoScreen from '../screens/PostVideoScreen';
 const Stack = createNativeStackNavigator();
 const CreateVideoNavigator = () => {
   return (
-    <NavigationContainer>
       <Stack.Navigator initialRouteName="CreateVideoScreen">
         <Stack.Screen
           name="CreateVideoScreen"
           component={CreateVideoScreen}
-          options={{ headerShown: false }}
+          options={{ headerShown: false  }}
         />
         <Stack.Screen
           name="PostVideoScreen"
@@ -20,7 +19,6 @@ const CreateVideoNavigator = () => {
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
-    </NavigationContainer>
   )
 }
 

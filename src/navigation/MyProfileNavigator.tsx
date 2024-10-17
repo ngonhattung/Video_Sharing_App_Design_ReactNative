@@ -1,6 +1,5 @@
 import { View, Text } from 'react-native'
 import React from 'react'
-import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import MyProfileScreen from '../screens/MyProfileScreen'
 import FollowScreen from '../screens/FollowScreen';
@@ -9,7 +8,6 @@ import VideoWatchingScreen from '../screens/VideoWatchingScreen';
 const Stack = createNativeStackNavigator();
 const MyProfileNavigator = () => {
   return (
-    <NavigationContainer>
       <Stack.Navigator initialRouteName="MyProfileScreen">
         <Stack.Screen
           name="MyProfileScreen"
@@ -32,7 +30,6 @@ const MyProfileNavigator = () => {
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
-    </NavigationContainer>
   )
 }
 
