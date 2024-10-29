@@ -10,7 +10,7 @@ const TopTrendingList: React.FC<TopTrendingListProps> = ({
     <FlatList
       data={videoTopTrendings}
       renderItem={({ item }) => <TopTrending videoTopTrending={item} />}
-      keyExtractor={(item: any) => item.videoId}
+      keyExtractor={(item) => item.videoId}
       horizontal={true}
     />
   );

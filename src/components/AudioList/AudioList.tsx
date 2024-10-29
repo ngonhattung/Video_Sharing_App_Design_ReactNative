@@ -7,7 +7,7 @@ const AudioList: React.FC<AudioListProps> = ({ audios }) => {
     <FlatList
       data={audios}
       renderItem={({ item }) => <Audio audio={item} />}
-      keyExtractor={(item: any) => item.id}
+      keyExtractor={(item) => item.id}
       horizontal={true}
     />
   );

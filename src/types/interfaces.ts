@@ -5,7 +5,7 @@ interface StoryContent {
 }
 
 interface UserStoryType {
-  id: number;
+  id: string;
   name: string;
   avatar: string;
   story: {
@@ -14,7 +14,7 @@ interface UserStoryType {
   };
 }
 interface VideoTopTrendingType {
-  userId: number;
+  userId: string;
   avatar: string;
   userName: string;
   videoId: string;
@@ -23,12 +23,12 @@ interface VideoTopTrendingType {
   views: number;
 }
 interface TopicType {
-  id: number;
+  id: string;
   name: string;
   image: string;
 }
 interface UserStreamingType {
-  id: number;
+  id: string;
   name: string;
   avatar: string;
   liveStream: {
@@ -40,7 +40,7 @@ interface UserStreamingType {
   };
 }
 interface AudioType {
-  id: number;
+  id: string;
   title: string;
   catalog: string;
   image: string;
@@ -75,3 +75,7 @@ export interface AudioProps {
 export interface AudioListProps {
   audios: AudioType[];
 }
+export type RootStackParamList = {
+  VideoWatchingScreen: { videoTopTrending: VideoTopTrendingType };
+  VideoStreamingScreen: { userStreaming: UserStreamingType };
+};

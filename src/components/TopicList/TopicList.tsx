@@ -8,7 +8,7 @@ const TopicList: React.FC<TopicListProps> = ({ topics }) => {
       data={topics}
       numColumns={4}
       renderItem={({ item }) => <Topic topic={item} />}
-      keyExtractor={(item: any) => item.id}
+      keyExtractor={(item) => item.id}
     />
   );
 };
