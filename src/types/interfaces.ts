@@ -27,7 +27,7 @@ interface VideoTopTrendingType {
   comments: number;
 }
 interface TopicType {
-  id: string;
+  topicID: string;
   name: string;
   image: string;
 }
@@ -44,7 +44,7 @@ interface UserStreamingType {
   };
 }
 interface AudioType {
-  id: string;
+  audioID: string;
   title: string;
   catalog: string;
   image: string;

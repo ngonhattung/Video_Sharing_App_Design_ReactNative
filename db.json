@@ -105,7 +105,23 @@
                 "streamTitle": "Cooking",
                 "content": "https://picsum.photos/210",
                 "viewers": 1000,
-                "minutesAgo": 10
+                "minutesAgo": 10,
+                "products": [
+                    {
+                        "productId": "p1",
+                        "productName": "Cooking Set",
+                        "productImage": "https://picsum.photos/200",
+                        "productPrice": 50,
+                        "sold": 10
+                    },
+                    {
+                        "productId": "p2",
+                        "productName": "Cooking Book",
+                        "productImage": "https://picsum.photos/200",
+                        "productPrice": 20,
+                        "sold": 20
+                    }
+                ]
             },
             "story": {
                 "hasStory": true,
@@ -145,7 +161,16 @@
                 "streamTitle": "Talking yoyo",
                 "content": "https://picsum.photos/211",
                 "viewers": 100,
-                "minutesAgo": 10
+                "minutesAgo": 10,
+                "products": [
+                    {
+                        "productId": "p3",
+                        "productName": "Yoyo",
+                        "productImage": "https://picsum.photos/200",
+                        "productPrice": 10,
+                        "sold": 50
+                    }
+                ]
             },
             "story": {
                 "hasStory": true,
@@ -278,7 +303,23 @@
                 "streamTitle": "Live Gaming",
                 "content": "https://picsum.photos/212",
                 "viewers": 30000,
-                "minutesAgo": 45
+                "minutesAgo": 45,
+                "products": [
+                    {
+                        "productId": "p4",
+                        "productName": "Gaming Chair",
+                        "productImage": "https://picsum.photos/200",
+                        "productPrice": 200,
+                        "sold": 10
+                    },
+                    {
+                        "productId": "p5",
+                        "productName": "Gaming Mouse",
+                        "productImage": "https://picsum.photos/201",
+                        "productPrice": 50,
+                        "sold": 10
+                    }
+                ]
             },
             "story": {
                 "hasStory": false,
@@ -316,7 +357,23 @@
                 "streamTitle": "Dancing",
                 "content": "https://picsum.photos/213",
                 "viewers": 13200,
-                "minutesAgo": 45
+                "minutesAgo": 45,
+                "products": [
+                    {
+                        "productId": "p6",
+                        "productName": "Dancing Shoes",
+                        "productImage": "https://picsum.photos/202",
+                        "productPrice": 100,
+                        "sold": 10
+                    },
+                    {
+                        "productId": "p7",
+                        "productName": "Dancing Dress",
+                        "productImage": "https://picsum.photos/203",
+                        "productPrice": 150,
+                        "sold": 10
+                    }
+                ]
             },
             "story": {
                 "hasStory": false,
@@ -354,7 +411,23 @@
                 "streamTitle": "Live Performance",
                 "content": "https://picsum.photos/214",
                 "viewers": 28000,
-                "minutesAgo": 10
+                "minutesAgo": 10,
+                "products": [
+                    {
+                        "productId": "p8",
+                        "productName": "Guitar",
+                        "productImage": "https://picsum.photos/204",
+                        "productPrice": 300,
+                        "sold": 10
+                    },
+                    {
+                        "productId": "p9",
+                        "productName": "Microphone",
+                        "productImage": "https://picsum.photos/205",
+                        "productPrice": 100,
+                        "sold": 10
+                    }
+                ]
             },
             "story": {
                 "hasStory": false,
@@ -394,7 +467,23 @@
                 "streamTitle": "Life style",
                 "content": "https://picsum.photos/215",
                 "viewers": 15000,
-                "minutesAgo": 1
+                "minutesAgo": 1,
+                "products": [
+                    {
+                        "productId": "p10",
+                        "productName": "Laptop",
+                        "productImage": "https://picsum.photos/206",
+                        "productPrice": 500,
+                        "sold": 10
+                    },
+                    {
+                        "productId": "p11",
+                        "productName": "Camera",
+                        "productImage": "https://picsum.photos/207",
+                        "productPrice": 400,
+                        "sold": 10
+                    }
+                ]
             },
             "story": {
                 "hasStory": false,
