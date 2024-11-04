@@ -8,23 +8,23 @@ import VideoStreamingScreen from '../screens/VideoStreamingScreen';
 const Stack = createNativeStackNavigator();
 const HomeNavigator = () => {
   return (
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="VideoWatchingScreen"
-          component={VideoWatchingScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="VideoStreamingScreen"
-          component={VideoStreamingScreen}
-          options={{ headerShown: false }}
-        />
-      </Stack.Navigator>
+    <Stack.Navigator initialRouteName="Home">
+      <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="VideoWatchingScreen"
+        component={VideoWatchingScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="VideoStreamingScreen"
+        component={VideoStreamingScreen}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
   )
 }
 
