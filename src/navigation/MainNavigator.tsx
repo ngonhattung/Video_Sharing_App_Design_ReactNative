@@ -42,15 +42,20 @@ const MainNavigator = () => {
         tabBarStyle: {
           display: hideTabBar ? "none" : "flex",
           height: "8%",
-          paddingTop: 10,
-          paddingBottom: 10,
+          paddingVertical: 10,
         },
       })}
     >
       <Tab.Screen
         name="Home"
         component={HomeNavigator}
-        options={{ tabBarStyle: { display: hideTabBar ? "none" : "flex" } }}
+        options={{
+          tabBarStyle: {
+            display: hideTabBar ? "none" : "flex",
+            height: "8%",
+            paddingVertical: 10,
+          },
+        }}
       />
       <Tab.Screen name="Search" component={SearchNavigator} />
       <Tab.Screen

@@ -19,8 +19,12 @@ interface VideoTopTrendingType {
   userName: string;
   videoId: string;
   title: string;
+  hashtag: string[];
   content: string;
+  audio: string;
   views: number;
+  likes: number;
+  comments: number;
 }
 interface TopicType {
   id: string;

@@ -21,16 +21,18 @@ export const getTopTrending = async () => {
         userName: user.name,
         videoId: video.videoId,
         title: video.title,
+        hashtag: video.hashtag,
         content: video.content,
+        audio: video.audio,
         views: video.views,
+        likes: video.likes,
+        comments: video.comments,
       }));
     });
     const sortedUsers = usersWithHighViews.sort(
       (a: any, b: any) => b.views - a.views
     );
-    console.log(sortedUsers);
     const topUsers = sortedUsers.slice(0, 4);
-    console.log(topUsers);
     return topUsers;
   } catch (error: any) {
     console.error(error.message);
@@ -42,6 +44,7 @@ export const getUserStreaming = async () => {
     const userWithStream = response.filter(
       (user: any) => user.liveStream && user.liveStream.isLive === true
     );
+    console.log("streaming", userWithStream);
     return userWithStream;
   } catch (error: any) {
     console.error(error.message);

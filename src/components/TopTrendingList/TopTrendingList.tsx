@@ -12,6 +12,7 @@ const TopTrendingList: React.FC<TopTrendingListProps> = ({
       renderItem={({ item }) => <TopTrending videoTopTrending={item} />}
       keyExtractor={(item) => item.videoId}
       horizontal={true}
+      nestedScrollEnabled={true}
     />
   );
 };

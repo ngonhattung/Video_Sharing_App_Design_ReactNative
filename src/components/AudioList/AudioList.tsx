@@ -9,6 +9,7 @@ const AudioList: React.FC<AudioListProps> = ({ audios }) => {
       renderItem={({ item }) => <Audio audio={item} />}
       keyExtractor={(item) => item.id}
       horizontal={true}
+      nestedScrollEnabled={true}
     />
   );
 };

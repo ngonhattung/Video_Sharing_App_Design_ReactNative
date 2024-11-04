@@ -17,6 +17,7 @@ import TopTrendingList from "../components/TopTrendingList/TopTrendingList";
 import TopicList from "../components/TopicList/TopicList";
 import StreamingList from "../components/StreamingList/StreamingList";
 import AudioList from "../components/AudioList/AudioList";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 const HomeScreen = () => {
   const [userStory, setUserStory] = useState([]);
   const [topTrending, setTopTrending] = useState([]);
@@ -81,7 +82,7 @@ const HomeScreen = () => {
         </View>
         <Image source={require("../assets/Spell.png")} />
       </View>
-      <ScrollView>
+      <KeyboardAwareScrollView>
         <UserStoryList userStorys={userStory} />
         <View
           style={{
@@ -141,7 +142,7 @@ const HomeScreen = () => {
           </TouchableOpacity>
         </View>
         <AudioList audios={audio} />
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </View>
   );
 };

@@ -16,6 +16,7 @@ const UserStoryList: React.FC<UserStoryListProps> = ({ userStorys }) => {
       renderItem={({ item }) => <UserStory userStory={item} />}
       keyExtractor={(item) => item.id}
       horizontal={true}
+      nestedScrollEnabled={true}
     />
   );
 };

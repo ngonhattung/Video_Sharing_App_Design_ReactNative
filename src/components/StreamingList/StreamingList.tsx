@@ -11,6 +11,7 @@ const StreamingList: React.FC<UserStreamingListProps> = ({
       renderItem={({ item }) => <Streaming userStreaming={item} />}
       keyExtractor={(item) => item.id}
       horizontal={true}
+      nestedScrollEnabled={true}
     />
   );
 };

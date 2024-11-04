@@ -9,6 +9,7 @@ const TopicList: React.FC<TopicListProps> = ({ topics }) => {
       numColumns={4}
       renderItem={({ item }) => <Topic topic={item} />}
       keyExtractor={(item) => item.id}
+      nestedScrollEnabled={true}
     />
   );
 };
