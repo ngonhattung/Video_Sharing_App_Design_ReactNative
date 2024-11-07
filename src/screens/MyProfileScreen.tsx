@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, Image, Pressable, FlatList } from 'react-native'
 import React from 'react';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useState, useEffect } from 'react';
 import { getVideo } from "../api/apiVideo";
 import { getImage } from "../api/apiImage";
@@ -37,6 +38,7 @@ const Item = ({ item }: { item: ObjItem }) => {
 
 
 const MyProfileScreen = () => {
+  const navigation = useNavigation<NavigationProp<any>>();
   const [selectedList, setSelectedList] = useState('videos');
   const [list, setList] = useState([]);
 
@@ -57,7 +59,6 @@ const MyProfileScreen = () => {
       fetchImages();
     }
   }, [list]);
-
 
   return (
     <View style={styles.container}>
@@ -82,7 +83,7 @@ const MyProfileScreen = () => {
         <Image source={require('../assets/avatar.png')} />
         <Text style={{ fontWeight: '500', fontSize: 18 }}>Ruth Sanders</Text>
         <View style={styles.infoFollowContainer}>
-          <Pressable style={styles.infoItem}>
+          <Pressable style={styles.infoItem} onPress={() => navigation.navigate('FollowScreen', { user: 'Ruth Sanders', img: require('../assets/avatar.png') })}>
             <Text>203</Text>
             <Text>Following</Text>
           </Pressable>

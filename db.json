@@ -194,5 +194,129 @@
             "comment_id": 8,
             "created_at": "2021-01-08"
         }
+    ],
+    "following": [
+        {
+            "id": 1,
+            "img": "https://i.pravatar.cc/36?img=3",
+            "name": "John Doe",
+            "status": "Follow"
+        },
+        {
+            "id": 2,
+            "img": "https://i.pravatar.cc/36?img=4",
+            "name": "Mary",
+            "status": "Follow"
+        },
+        {
+            "id": 3,
+            "img": "https://i.pravatar.cc/36?img=5",
+            "name": "Jame Franco",
+            "status": "Following"
+        },
+        {
+            "id": 4,
+            "img": "https://i.pravatar.cc/36?img=6",
+            "name": "Jena Nguyen",
+            "status": "Following"
+        },
+        {
+            "id": 5,
+            "img": "https://i.pravatar.cc/36?img=7",
+            "name": "Jame Doe",
+            "status": "Following"
+        },
+        {
+            "id": 6,
+            "img": "https://i.pravatar.cc/36?img=8",
+            "name": "Kristan Watson",
+            "status": "Following"
+        },
+        {
+            "id": 7,
+            "img": "https://i.pravatar.cc/36?img=9",
+            "name": "Jame Doe",
+            "status": "Following"
+        },
+        {
+            "id": 8,
+            "img": "https://i.pravatar.cc/36?img=10",
+            "name": "Jame Doe",
+            "status": "Following"
+        },
+        {
+            "id": 9,
+            "img": "https://i.pravatar.cc/36?img=11",
+            "name": "Jame Doe",
+            "status": "Following"
+        },
+        {
+            "id": 10,
+            "img": "https://i.pravatar.cc/36?img=12",
+            "name": "Jame Doe",
+            "status": "Following"
+        }
+    ],
+    "followers": [
+        {
+            "id": 1,
+            "img": "https://i.pravatar.cc/36?img=19",
+            "name": "Mary Doe",
+            "status": "Follow lại"
+        },
+        {
+            "id": 2,
+            "img": "https://i.pravatar.cc/36?img=20",
+            "name": "Hary Lu",
+            "status": "Follow lại"
+        },
+        {
+            "id": 3,
+            "img": "https://i.pravatar.cc/36?img=21",
+            "name": "Jame Franco",
+            "status": "Follow lại"
+        },
+        {
+            "id": 4,
+            "img": "https://i.pravatar.cc/36?img=22",
+            "name": "Jena Nguyen",
+            "status": "Follow lại"
+        },
+        {
+            "id": 5,
+            "img": "https://i.pravatar.cc/36?img=23",
+            "name": "Jame Doe",
+            "status": "Follow lại"
+        },
+        {
+            "id": 6,
+            "img": "https://i.pravatar.cc/36?img=24",
+            "name": "Kristan Watson",
+            "status": "Bạn bè"
+        },
+        {
+            "id": 7,
+            "img": "https://i.pravatar.cc/36?img=25",
+            "name": "Jame Doe",
+            "status": "Follow lại"
+        },
+        {
+            "id": 8,
+            "img": "https://i.pravatar.cc/36?img=26",
+            "name": "Jame Doe",
+            "status": "Bạn bè"
+        },
+        {
+            "id": 9,
+            "img": "https://i.pravatar.cc/36?img=27",
+            "name": "Jame Doe",
+            "status": "Follow lại"
+        },
+        {
+            "id": 10,
+            "img": "https://i.pravatar.cc/36?img=28",
+            "name": "Jame Doe",
+            "status": "Bạn bè"
+        }
     ]
 }
