@@ -50,3 +50,17 @@ export const getUserStreaming = async () => {
     console.error(error.message);
   }
 };
+
+export const getCommentsFromVideo = async (videoId: string) => {
+  try {
+    const { data: response } = await axiosInstance.get("users");
+    const comments = response.flatMap((user: any) => {
+      return user.videos
+        .filter((video: any) => video.videoId === videoId)
+        .flatMap((video: any) => video.comments);
+    });
+    return comments;
+  } catch (error: any) {
+    console.error(error.message);
+  }
+};

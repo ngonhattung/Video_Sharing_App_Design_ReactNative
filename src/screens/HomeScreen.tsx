@@ -12,11 +12,11 @@ import { useNavigation } from "@react-navigation/native";
 import UserStoryList from "../components/ListUserStory/UserStoryList";
 import * as apiUser from "../api/apiUser";
 import * as apiTopic from "../api/apiTopic";
-import * as apiAudio from "../api/apiAudio";
+import * as apiAudio from "../api/apiAudioType";
 import TopTrendingList from "../components/TopTrendingList/TopTrendingList";
 import TopicList from "../components/TopicList/TopicList";
 import StreamingList from "../components/StreamingList/StreamingList";
-import AudioList from "../components/AudioList/AudioList";
+import AudioTypeList from "../components/AudioTypeList/AudioListType";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 const HomeScreen = () => {
   const [userStory, setUserStory] = useState([]);
@@ -141,7 +141,7 @@ const HomeScreen = () => {
             <Text style={{ color: "#FF6781" }}>View more</Text>
           </TouchableOpacity>
         </View>
-        <AudioList audios={audio} />
+        <AudioTypeList audiotypes={audio} />
       </KeyboardAwareScrollView>
     </View>
   );

@@ -6,7 +6,6 @@ import CreateVideoNavigator from "./CreateVideoNavigator";
 import FriendScreen from "../screens/FriendScreen";
 import MyProfileNavigator from "./MyProfileNavigator";
 import Icon from "react-native-vector-icons/FontAwesome5";
-import { useTabBar } from "../context/TabBarContext";
 import { useSelector } from "react-redux";
 import { boolHideTabBar } from "../redux/selectors";
 const Tab = createBottomTabNavigator();
@@ -41,8 +40,9 @@ const MainNavigator = () => {
         headerShown: false,
         tabBarStyle: {
           display: hideTabBar ? "none" : "flex",
-          height: "8%",
+          height: 55,
           paddingVertical: 10,
+          marginBottom: 10,
         },
       })}
     >
@@ -52,8 +52,9 @@ const MainNavigator = () => {
         options={{
           tabBarStyle: {
             display: hideTabBar ? "none" : "flex",
-            height: "8%",
+            height: 55,
             paddingVertical: 10,
+            marginBottom: 10,
           },
         }}
       />
@@ -62,8 +63,10 @@ const MainNavigator = () => {
         name="Create"
         component={CreateVideoNavigator}
         options={{
-          tabBarStyle: { display: "none" },
           tabBarLabel: () => null,
+          tabBarStyle: {
+            display: "none",
+          },
         }}
       />
       <Tab.Screen name="Friends" component={FriendScreen} />

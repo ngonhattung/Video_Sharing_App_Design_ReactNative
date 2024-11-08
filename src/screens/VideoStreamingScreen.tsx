@@ -10,9 +10,12 @@ import React, { useState } from "react";
 import { ImageBackground } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { setHideTabBar } from "../redux/tabBarSlice";
 const VideoStreamingScreen = ({ route }: any) => {
   const { userStreaming } = route.params || {};
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const [emotions, setEmotions] = useState<
     { emotion: Emotion; index: number }[]
   >([]);
@@ -75,6 +78,7 @@ const VideoStreamingScreen = ({ route }: any) => {
 
             <TouchableOpacity
               onPress={() => {
+                dispatch(setHideTabBar(false));
                 navigation.goBack();
               }}
             >

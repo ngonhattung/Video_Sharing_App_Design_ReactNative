@@ -43,10 +43,31 @@ interface UserStreamingType {
     minutesAgo: number;
   };
 }
-interface AudioType {
+interface AudioTypeType {
   audioID: string;
   title: string;
   catalog: string;
+  image: string;
+}
+interface CommentType {
+  commentId: string;
+  avatar: string;
+  commenter: string;
+  like: boolean;
+  comment: string;
+  timeAgo: string;
+}
+interface AudioType {
+  audioId: string;
+  category: string;
+  name: string;
+  duration: number;
+  image: string;
+}
+interface FilterType {
+  filterId: string;
+  category: string;
+  name: string;
   image: string;
 }
 export interface UserStoryProps {
@@ -73,13 +94,37 @@ export interface UserStreamingProps {
 export interface UserStreamingListProps {
   userStreamings: UserStreamingType[];
 }
+export interface AudioTypeProps {
+  audiotype: AudioTypeType;
+}
+export interface AudioTypeListProps {
+  audiotypes: AudioTypeType[];
+}
+export interface CommentProps {
+  comment: CommentType;
+}
+export interface CommentListProps {
+  comments: CommentType[];
+}
 export interface AudioProps {
   audio: AudioType;
+  isPlaying: boolean;
+  onPlay: () => void;
 }
 export interface AudioListProps {
   audios: AudioType[];
 }
+export interface FilterProps {
+  filter: FilterType;
+  isFilter: boolean;
+  onChoose: () => void;
+}
+export interface FilterListProps {
+  filters: FilterType[];
+  clearFilter: boolean;
+}
 export type RootStackParamList = {
   VideoWatchingScreen: { videoTopTrending: VideoTopTrendingType };
   VideoStreamingScreen: { userStreaming: UserStreamingType };
+  PostVideoScreen: undefined;
 };

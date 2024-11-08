@@ -5,12 +5,24 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  Modal,
 } from "react-native";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { setHideTabBar } from "../redux/tabBarSlice";
+import { ScrollView, TextInput } from "react-native-gesture-handler";
+import * as apiUser from "../api/apiUser";
+import CommentList from "../components/CommentList/CommentList";
 const VideoWatchingScreen = ({ route }: any) => {
   const { videoTopTrending } = route.params || {};
+  const [modalVisible, setModalVisible] = useState(false);
+  const [comments, setComments] = useState([]);
+  const toggleModal = () => {
+    setModalVisible(!modalVisible);
+  };
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const formatViews = (views: any) => {
     if (views >= 1000000) {
       return (views / 1000000).toFixed(1) + "M";
@@ -20,6 +32,20 @@ const VideoWatchingScreen = ({ route }: any) => {
       return views.toString();
     }
   };
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const results = await apiUser.getCommentsFromVideo(
+          videoTopTrending.videoId
+        );
+        console.log("comments", results);
+        setComments(results);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchComments();
+  }, []);
   return (
     <ImageBackground
       source={{ uri: videoTopTrending.content }}
@@ -28,6 +54,7 @@ const VideoWatchingScreen = ({ route }: any) => {
       <View style={styles.content}>
         <TouchableOpacity
           onPress={() => {
+            dispatch(setHideTabBar(false));
             navigation.goBack();
           }}
           style={{ position: "absolute", top: 20, right: 20 }}
@@ -94,17 +121,63 @@ const VideoWatchingScreen = ({ route }: any) => {
             </Text>
           </View>
 
-          <View style={{ marginBottom: 30, alignItems: "center" }}>
-            <Image
-              source={require("../assets/comment.png")}
-              style={{ marginBottom: 5 }}
-            />
-            <Text style={styles.infoText}>
-              {formatViews(videoTopTrending.comments)}
-            </Text>
-          </View>
+          <TouchableOpacity onPress={toggleModal}>
+            <View style={{ marginBottom: 30, alignItems: "center" }}>
+              <Image
+                source={require("../assets/comment.png")}
+                style={{ marginBottom: 5 }}
+              />
+              <Text style={styles.infoText}>
+                {formatViews(videoTopTrending.comments.length)}
+              </Text>
+            </View>
+          </TouchableOpacity>
 
           <Image source={require("../assets/detailicon.png")} />
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={toggleModal}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.bottomSheet}>
+                {/* Content for comments */}
+                <View style={styles.headerModal}>
+                  <Text style={styles.headerText}>
+                    {comments.length} Comments
+                  </Text>
+                  {/* Close Button */}
+                  <TouchableOpacity onPress={toggleModal}>
+                    <Image source={require("../assets/closeb.png")} />
+                  </TouchableOpacity>
+                </View>
+                <ScrollView style={styles.commentContainer}>
+                  <CommentList comments={comments} />
+                </ScrollView>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginTop: 20,
+                  }}
+                >
+                  <TextInput
+                    placeholder="Leave comment..."
+                    style={{
+                      width: "90%",
+                      height: 40,
+                      paddingLeft: 10,
+                      backgroundColor: "#F3F4F6",
+                    }}
+                  />
+                  <Image source={require("../assets/send.png")} />
+                </View>
+              </View>
+            </View>
+          </Modal>
         </View>
       </View>
     </ImageBackground>
@@ -136,6 +209,36 @@ const styles = StyleSheet.create({
     right: 25,
     bottom: 25,
     alignItems: "center",
+    zIndex: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
+  bottomSheet: {
+    width: "100%",
+    height: "65%",
+    backgroundColor: "white",
+    padding: 15,
+  },
+  commentContainer: {
+    maxHeight: "90%",
+  },
+  closeButtonText: {
+    color: "white",
+    fontSize: 16,
+    textAlign: "center",
+  },
+  headerModal: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  headerText: {
+    fontSize: 25,
+    fontWeight: "bold",
   },
 });
 export default VideoWatchingScreen;

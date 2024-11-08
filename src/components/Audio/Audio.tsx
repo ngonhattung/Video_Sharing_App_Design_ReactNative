@@ -1,39 +1,92 @@
-import { View, Text, StyleSheet, Image } from "react-native";
-import React from "react";
+import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
 import { AudioProps } from "../../types/interfaces";
-const Audio: React.FC<AudioProps> = ({ audio }) => {
+import Icon from "react-native-vector-icons/FontAwesome5";
+const Audio: React.FC<AudioProps> = ({ audio, isPlaying, onPlay }) => {
   return (
-    <View style={styles.container}>
-      <Image
-        source={{ uri: audio.image }}
-        style={{ width: 100, height: 100 }}
-        resizeMode="contain"
-      />
-      <Text
-        style={{
-          fontWeight: "700",
-          fontSize: 12,
-          color: "#757980",
-          marginVertical: 5,
-        }}
-      >
-        {audio.title}
-      </Text>
-      <Text
-        style={{
-          fontSize: 10,
-          color: "#757980",
-        }}
-      >
-        {audio.catalog}
-      </Text>
+    <View
+      style={
+        isPlaying
+          ? [styles.container, { backgroundColor: "#FEF0F5" }]
+          : styles.container
+      }
+    >
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <View style={{ position: "relative", width: 50, height: 50 }}>
+          <TouchableOpacity
+            onPress={onPlay}
+            style={{
+              width: 50,
+              height: 50,
+              justifyContent: "center",
+              alignItems: "center",
+              position: "absolute",
+              top: 0,
+              left: 0,
+            }}
+          >
+            <Image
+              source={{ uri: audio.image }}
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 10,
+              }}
+            />
+            {isPlaying ? (
+              <Icon
+                name="pause"
+                size={10}
+                color="white"
+                style={{ position: "absolute" }}
+              />
+            ) : (
+              <Icon
+                name="play"
+                size={10}
+                color="white"
+                style={{ position: "absolute" }}
+              />
+            )}
+          </TouchableOpacity>
+        </View>
+        <View style={{ marginLeft: 10 }}>
+          <Text style={{ fontSize: 15 }}>{audio.name}</Text>
+          <Text style={{ fontSize: 16, color: "gray" }}>
+            00:{audio.duration}
+          </Text>
+        </View>
+      </View>
+
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <TouchableOpacity
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            marginRight: 10,
+            width: 60,
+            height: 30,
+            borderWidth: 1,
+            borderRadius: 5,
+            borderColor: "#F891B6",
+          }}
+        >
+          <Text style={{ color: "#F891B6" }}>Use</Text>
+        </TouchableOpacity>
+        <Image source={require("../../assets/detailau.png")} />
+      </View>
     </View>
   );
 };
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 8,
+    flexDirection: "row",
+    marginBottom: 20,
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    padding: 10,
+    borderRadius: 5,
   },
 });
 export default Audio;
