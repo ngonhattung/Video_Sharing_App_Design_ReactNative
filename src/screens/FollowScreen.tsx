@@ -2,7 +2,46 @@ import { View, Text, StyleSheet, Image, Pressable, FlatList } from 'react-native
 import React from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState, useEffect } from 'react';
-import { getFollowing, getFollower, updateFollowing } from "../api/apiFollowing";
+import { getFollowing, getFollower } from "../api/apiFollowing";
+import { useNavigation } from '@react-navigation/native';
+
+const suggestForYouDB = [
+  {
+    "id": 1,
+    "img": "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
+    "name": "John Doe",
+    "status": "Follow"
+  },
+  {
+    "id": 2,
+    "img": "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
+    "name": "John Doe",
+    "status": "Follow"
+  },
+  {
+    "id": 3,
+    "img": "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
+    "name": "John Doe",
+    "status": "Follow"
+  },
+  {
+    "id": 4,
+    "img": "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
+    "name": "John Doe",
+    "status": "Follow"
+  },
+]
+
+const pressOnProfile = (navigation: any) => {
+  navigation.navigate('ProfileDetailScreen',
+    {
+      user: {
+        name: 'John Doe',
+        img: 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg',
+        bio: 'I love a colorful life'
+      }
+    });
+}
 
 interface ObjItem {
   id: number;
@@ -11,20 +50,10 @@ interface ObjItem {
   status: string;
 }
 const ItemFollowing = ({ item }: { item: ObjItem }) => {
-
-  const updateFollow = async (id: number, status: string) => {
-    if (status === 'Follow') {
-      status = 'Following';
-    } else {
-      status = 'Follow';
-    }
-    const response = await updateFollowing(id, status);
-    console.log(response);
-  }
-
-
+  const navigation = useNavigation();
   return (
-    <View style={{ flexDirection: 'row', padding: 15 }}>
+    <Pressable style={{ flexDirection: 'row', padding: 15 }}
+      onPress={() => pressOnProfile(navigation)}>
       <Image source={{ uri: item.img }}
         style={{ width: 36, height: 36, borderRadius: 50, marginRight: 10 }}
       />
@@ -34,21 +63,23 @@ const ItemFollowing = ({ item }: { item: ObjItem }) => {
         borderWidth: 1,
         borderColor: '#555',
         padding: 10,
+        width: 100,
         borderRadius: 5,
         justifyContent: 'center',
         alignItems: 'center'
-      }, item.status === 'Follow' && { width: 80, backgroundColor: '#379AE6', borderWidth: 0 }]}
-        onPress={() => updateFollow(item.id, item.status)}
+      }, item.status === 'Follow' && { width: 100, backgroundColor: '#379AE6', borderWidth: 0 }]}
       >
         <Text style={[{ color: '#555' }, item.status === 'Follow' && { color: 'white' }]}>{item.status}</Text>
       </Pressable>
-    </View>
+    </Pressable>
   );
 }
 
 const ItemFollower = ({ item }: { item: ObjItem }) => {
+  const navigation = useNavigation();
   return (
-    <View style={{ flexDirection: 'row', padding: 15 }}>
+    <Pressable style={{ flexDirection: 'row', padding: 15 }}
+      onPress={() => pressOnProfile(navigation)}>
       <Image source={{ uri: item.img }}
         style={{ width: 36, height: 36, borderRadius: 50, marginRight: 10 }}
       />
@@ -65,7 +96,33 @@ const ItemFollower = ({ item }: { item: ObjItem }) => {
       }, item.status === 'Follow lại' && { width: 100, backgroundColor: '#de3c41', borderWidth: 0 }]}>
         <Text style={[{ color: '#555' }, item.status === 'Follow lại' && { color: 'white' }]}>{item.status}</Text>
       </Pressable>
-    </View>
+    </Pressable>
+  );
+}
+
+const ItemSuggestForYou = ({ item }: { item: ObjItem }) => {
+  const navigation = useNavigation();
+  return (
+    <Pressable style={{ flexDirection: 'row', padding: 15 }}
+      onPress={() => pressOnProfile(navigation)}>
+      <Image source={{ uri: item.img }}
+        style={{ width: 36, height: 36, borderRadius: 50, marginRight: 10 }}
+      />
+      <Text>{item.name}</Text>
+      <Pressable style={[{
+        marginLeft: 'auto',
+        borderWidth: 1,
+        borderColor: '#555',
+        padding: 10,
+        width: 100,
+        borderRadius: 5,
+        justifyContent: 'center',
+        alignItems: 'center'
+      }, item.status === 'Follow' && { width: 100, backgroundColor: '#379AE6', borderWidth: 0 }]}
+      >
+        <Text style={[{ color: '#555' }, item.status === 'Follow' && { color: 'white' }]}>{item.status}</Text>
+      </Pressable>
+    </Pressable>
   );
 }
 
@@ -135,10 +192,17 @@ const FollowScreen = ({ route }: { route: any }) => {
           <Text style={[{ fontSize: 15, fontWeight: 500, color: '#aaa' }, typeFilter === 'following' && { color: '#F9A6C3' }]}>456 following</Text>
         </Pressable>
       </View>
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1.4 }}>
         <FlatList
           data={list}
           renderItem={({ item }) => typeFilter === 'following' ? <ItemFollowing item={item} /> : <ItemFollower item={item} />}
+        />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: 15, fontWeight: 500, padding: 10 }}>Suggest for you</Text>
+        <FlatList
+          data={suggestForYouDB}
+          renderItem={({ item }) => <ItemSuggestForYou item={item} />}
         />
       </View>
     </View>

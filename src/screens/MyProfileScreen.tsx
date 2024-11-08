@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, Image, Pressable, FlatList } from 'react-native'
 import React from 'react';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState, useEffect } from 'react';
 import { getVideo } from "../api/apiVideo";
 import { getImage } from "../api/apiImage";
@@ -26,10 +27,11 @@ const Item = ({ item }: { item: ObjItem }) => {
     <Pressable style={styles.itemContainer}>
       <Image style={styles.itemImage} source={{ uri: item.url }} />
       <View style={styles.viewsText}>
-        <Image source={require('../assets/play-view.png')} />
+        <Ionicons name="play-outline" size={14} color="white" />
         <Text style={{
           color: 'white',
           fontWeight: 400,
+          fontSize: 10
         }}>{convertViews(item.views)} views</Text>
       </View>
     </Pressable>
@@ -170,7 +172,7 @@ const styles = StyleSheet.create({
   itemContainer: {
     width: 120,
     height: 160,
-    margin: 5,
+    margin: 3,
   },
   itemImage: {
     resizeMode: 'contain',
@@ -184,6 +186,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 5,
     left: 5,
+    flexDirection: 'row',
+    width: 110,
   },
   activeFilter: {
     borderBottomWidth: 4,

@@ -200,13 +200,13 @@
             "id": 1,
             "img": "https://i.pravatar.cc/36?img=3",
             "name": "John Doe",
-            "status": "Follow"
+            "status": "Following"
         },
         {
             "id": 2,
             "img": "https://i.pravatar.cc/36?img=4",
             "name": "Mary",
-            "status": "Follow"
+            "status": "Following"
         },
         {
             "id": 3,
