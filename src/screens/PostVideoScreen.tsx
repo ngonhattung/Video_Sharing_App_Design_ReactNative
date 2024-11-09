@@ -5,23 +5,59 @@ import {
   Image,
   TouchableOpacity,
   Switch,
+  Alert,
 } from "react-native";
 import React, { useState } from "react";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
+import SelectDropdown from "react-native-select-dropdown";
+import { SelectList } from "react-native-dropdown-select-list";
+import * as ImagePicker from "expo-image-picker";
 const PostVideoScreen = () => {
   const navigation = useNavigation();
   const [isEnabled, setIsEnabled] = useState(false);
   const [isEnabledFB, setIsEnabledFB] = useState(false);
   const [isEnabledX, setIsEnabledX] = useState(false);
   const [isEnabledIG, setIsEnabledIG] = useState(false);
+
+  const options = [
+    { key: "All", value: "All" },
+    { key: "Only you", value: "Only you" },
+    { key: "Friends", value: "Friends" },
+  ];
+  const [selected, setSelected] = useState("");
   const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
   const toggleSwitchFB = () =>
     setIsEnabledFB((previousState) => !previousState);
   const toggleSwitchX = () => setIsEnabledX((previousState) => !previousState);
   const toggleSwitchIG = () =>
     setIsEnabledIG((previousState) => !previousState);
+  const [imageUri, setImageUri] = useState<any>(null);
+
+  const selectImage = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      Alert.alert(
+        "Quyền truy cập bị từ chối",
+        "Ứng dụng cần quyền truy cập để chọn ảnh."
+      );
+      return;
+    }
+    // Mở thư viện ảnh
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -42,16 +78,28 @@ const PostVideoScreen = () => {
       </View>
       <ScrollView>
         <View style={styles.uploadImgCon}>
-          <Image
-            source={require("../assets/bgcreate.png")}
-            style={{
-              width: 200,
-              height: 300,
-              borderRadius: 10,
-              marginBottom: 10,
-            }}
-          />
-          <TouchableOpacity>
+          {imageUri ? (
+            <Image
+              source={{ uri: imageUri }}
+              style={{
+                width: 200,
+                height: 300,
+                borderRadius: 10,
+                marginBottom: 10,
+              }}
+            />
+          ) : (
+            <Image
+              source={require("../assets/bgcreate.png")}
+              style={{
+                width: 200,
+                height: 300,
+                borderRadius: 10,
+                marginBottom: 10,
+              }}
+            />
+          )}
+          <TouchableOpacity onPress={selectImage}>
             <Text style={{ fontSize: 16, fontWeight: "400", color: "#F44A86" }}>
               Change cover photo
             </Text>
@@ -134,6 +182,12 @@ const PostVideoScreen = () => {
         </View>
         <View style={styles.optionWatchCon}>
           <Text>Who can watch</Text>
+          <SelectList
+            setSelected={(val: any) => setSelected(val)}
+            data={options}
+            defaultOption={options[0]}
+            search={false}
+          />
         </View>
 
         <View style={styles.fbCon}>
@@ -251,6 +305,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 30,
+    borderColor: "#E6E6E6",
+    paddingVertical: 5,
+    borderBottomWidth: 1,
   },
   uploadImgCon: {
     alignItems: "center",
