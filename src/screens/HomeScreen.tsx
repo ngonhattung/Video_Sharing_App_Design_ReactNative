@@ -18,13 +18,19 @@ import TopicList from "../components/TopicList/TopicList";
 import StreamingList from "../components/StreamingList/StreamingList";
 import AudioTypeList from "../components/AudioTypeList/AudioListType";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useDispatch, useSelector } from "react-redux";
+import { setHideTabBar } from "../redux/tabBarSlice";
 const HomeScreen = () => {
+  const dispatch = useDispatch();
+  // const userId = useSelector((state: any) => state.auth.userId);
+  // console.log("userId", userId);
   const [userStory, setUserStory] = useState([]);
   const [topTrending, setTopTrending] = useState([]);
   const [topic, setTopic] = useState([]);
   const [streaming, setStreaming] = useState([]);
   const [audio, setAudio] = useState([]);
   useEffect(() => {
+    dispatch(setHideTabBar(false));
     const fetchUserStory = async () => {
       try {
         const response = await apiUser.getUserStory();

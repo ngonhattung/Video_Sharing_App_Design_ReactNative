@@ -44,7 +44,6 @@ export const getUserStreaming = async () => {
     const userWithStream = response.filter(
       (user: any) => user.liveStream && user.liveStream.isLive === true
     );
-    console.log("streaming", userWithStream);
     return userWithStream;
   } catch (error: any) {
     console.error(error.message);
