@@ -21,7 +21,9 @@ const VideoWatchingScreen = ({ route }: any) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [comments, setComments] = useState<CommentType[]>([]);
   const [comment, setComment] = useState("");
+  const [isFllowing, setIsFllowing] = useState(false);
   const [like, setLike] = useState(false);
+  const userId = useSelector((state: any) => state.auth.userId);
   const handleLikeVideo = async () => {
     setLike((prevLike) => {
       const newLikeStatus = !prevLike;
@@ -35,7 +37,14 @@ const VideoWatchingScreen = ({ route }: any) => {
       return newLikeStatus;
     });
   };
-  const userId = useSelector((state: any) => state.auth.userId);
+  const handleFollowUser = async () => {
+    setIsFllowing(true);
+    try {
+      await apiUser.handleSaveFowllow(videoTopTrending.userId);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const sendComment = async () => {
     try {
       const result = await apiUser.postComment(
@@ -93,6 +102,18 @@ const VideoWatchingScreen = ({ route }: any) => {
         console.error(error);
       }
     };
+    const fetchFollowingStatus = async () => {
+      try {
+        const results = await apiUser.getFollowing();
+        console.log("following", results);
+        setIsFllowing(
+          results.some((user: any) => user.userId === videoTopTrending.userId)
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchFollowingStatus();
     fetchLikedStatus();
     fetchComments();
   }, [videoTopTrending.videoId]);
@@ -143,22 +164,25 @@ const VideoWatchingScreen = ({ route }: any) => {
               style={{ width: 40, height: 40 }}
               resizeMode="contain"
             />
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#0D99FF",
-                width: 14,
-                height: 14,
-                borderRadius: 7,
-                justifyContent: "center",
-                alignItems: "center",
-                position: "absolute",
-                bottom: -5,
-              }}
-            >
-              <Text style={{ color: "#ffffff", alignContent: "center" }}>
-                +
-              </Text>
-            </TouchableOpacity>
+            {isFllowing ? null : (
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#0D99FF",
+                  width: 14,
+                  height: 14,
+                  borderRadius: 7,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  position: "absolute",
+                  bottom: -5,
+                }}
+                onPress={handleFollowUser}
+              >
+                <Text style={{ color: "#ffffff", alignContent: "center" }}>
+                  +
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           <View style={{ marginBottom: 30, alignItems: "center" }}>

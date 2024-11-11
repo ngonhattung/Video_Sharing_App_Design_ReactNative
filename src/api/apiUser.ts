@@ -347,3 +347,132 @@ export const getVideoSaved = async () => {
     console.error("Error posting comment:", error.message);
   }
 };
+
+export const handleSaveFowllow = async (targetUserId: string) => {
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const currentUserId = currentUser.uid;
+      const userDocRef = doc(db, "users", currentUserId);
+      const userDoc = await getDoc(userDocRef);
+      const userData = userDoc.data();
+      const name = userData?.name;
+      const avatar = userData?.avatar;
+      if (!userData) {
+        console.error("User not found");
+        return;
+      }
+
+      const targetUserDocRef = doc(db, "users", targetUserId);
+      const targetUserDoc = await getDoc(targetUserDocRef);
+      const targetUserData = targetUserDoc.data();
+      const userNameTarget = targetUserData?.name;
+      const avatarTarget = targetUserData?.avatar;
+
+      if (!targetUserData) {
+        console.error("Target user not found");
+        return;
+      }
+
+      const newFollowing = {
+        userId: targetUserId,
+        name: userNameTarget,
+        avatar: avatarTarget,
+      };
+      await updateDoc(userDocRef, {
+        following: [...userData.following, newFollowing],
+      });
+
+      const newFollower = {
+        userId: currentUserId,
+        name,
+        avatar,
+      };
+      await updateDoc(targetUserDocRef, {
+        followers: [...targetUserData.followers, newFollower],
+      });
+    }
+  } catch (error: any) {
+    console.error("Error posting comment:", error.message);
+  }
+};
+
+export const handleUnSaveFowllow = async (targetUserId: string) => {
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const currentUserId = currentUser.uid;
+      const userDocRef = doc(db, "users", currentUserId);
+      const userDoc = await getDoc(userDocRef);
+      const userData = userDoc.data();
+
+      if (!userData) {
+        console.error("User not found");
+        return;
+      }
+
+      const targetUserDocRef = doc(db, "users", targetUserId);
+      const targetUserDoc = await getDoc(targetUserDocRef);
+      const targetUserData = targetUserDoc.data();
+
+      if (!targetUserData) {
+        console.error("Target user not found");
+        return;
+      }
+
+      await updateDoc(userDocRef, {
+        following: userData.following.filter(
+          (user: any) => user.userId !== targetUserId
+        ),
+      });
+
+      await updateDoc(targetUserDocRef, {
+        followers: targetUserData.followers.filter(
+          (user: any) => user.userId !== currentUserId
+        ),
+      });
+    }
+  } catch (error: any) {
+    console.error("Error posting comment:", error.message);
+  }
+};
+
+export const getFollower = async () => {
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const currentUserId = currentUser.uid;
+      const userDocRef = doc(db, "users", currentUserId);
+      const userDoc = await getDoc(userDocRef);
+      const userData = userDoc.data();
+
+      if (!userData) {
+        console.error("User not found");
+        return;
+      }
+      return userData.followers;
+    }
+  } catch (error: any) {
+    console.error("Error posting comment:", error.message);
+  }
+};
+
+export const getFollowing = async () => {
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const currentUserId = currentUser.uid;
+      const userDocRef = doc(db, "users", currentUserId);
+      const userDoc = await getDoc(userDocRef);
+      const userData = userDoc.data();
+
+      if (!userData) {
+        console.error("User not found");
+        return;
+      }
+      return userData.following;
+    }
+  } catch (error: any) {
+    console.error("Error posting comment:", error.message);
+  }
+};
