@@ -49,7 +49,7 @@ interface AudioTypeType {
   catalog: string;
   image: string;
 }
-interface CommentType {
+export interface CommentType {
   commentId: string;
   avatar: string;
   commenter: string;

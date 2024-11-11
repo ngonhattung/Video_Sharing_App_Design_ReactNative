@@ -113,7 +113,7 @@
             "liveStream": {
                 "isLive": false,
                 "streamTitle": "",
-                "content": "",
+                "contentLive": "",
                 "viewers": 0,
                 "minutesAgo": 0
             },
@@ -126,7 +126,31 @@
                         "postedAt": ""
                     }
                 ]
-            }
+            },
+            "followers": [
+                {
+                    "userIdFw": "1",
+                    "avatar": "acb",
+                    "name": "abc"
+                },
+                {
+                    "userIdFw": "2"
+                }
+            ],
+            "following": [
+                {
+                    "userIdFg": "1"
+                },
+                {
+                    "userIdFg": "2"
+                }
+            ],
+            "saved": [
+                {
+                    "videoId": "v1",
+                    "abc": "...."
+                }
+            ]
         },
         {
             "id": "2",

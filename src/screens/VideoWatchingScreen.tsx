@@ -9,15 +9,52 @@ import {
 } from "react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setHideTabBar } from "../redux/tabBarSlice";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import * as apiUser from "../api/apiUser";
+import { CommentType } from "../types/interfaces";
 import CommentList from "../components/CommentList/CommentList";
+import Icon from "react-native-vector-icons/FontAwesome5";
 const VideoWatchingScreen = ({ route }: any) => {
   const { videoTopTrending } = route.params || {};
   const [modalVisible, setModalVisible] = useState(false);
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState<CommentType[]>([]);
+  const [comment, setComment] = useState("");
+  const [like, setLike] = useState(false);
+  const handleLikeVideo = async () => {
+    setLike((prevLike) => {
+      const newLikeStatus = !prevLike;
+      if (newLikeStatus) {
+        videoTopTrending.likes += 1;
+        apiUser.saveVideo(videoTopTrending);
+      } else {
+        videoTopTrending.likes -= 1;
+        apiUser.unSaveVideo(videoTopTrending);
+      }
+      return newLikeStatus;
+    });
+  };
+  const userId = useSelector((state: any) => state.auth.userId);
+  const sendComment = async () => {
+    try {
+      const result = await apiUser.postComment(
+        userId,
+        videoTopTrending.videoId,
+        comment,
+        videoTopTrending.userId
+      );
+      setComment("");
+      if (result && result.commentId) {
+        setComments((prevComments) => [...prevComments, result]);
+      } else {
+        console.error("Invalid comment result", result);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const toggleModal = () => {
     setModalVisible(!modalVisible);
   };
@@ -38,14 +75,27 @@ const VideoWatchingScreen = ({ route }: any) => {
         const results = await apiUser.getCommentsFromVideo(
           videoTopTrending.videoId
         );
-        console.log("comments", results);
         setComments(results);
       } catch (error) {
         console.error(error);
       }
     };
+    const fetchLikedStatus = async () => {
+      try {
+        const results = await apiUser.getVideoSaved();
+
+        setLike(
+          results.some(
+            (video: any) => video.videoId === videoTopTrending.videoId
+          )
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchLikedStatus();
     fetchComments();
-  }, []);
+  }, [videoTopTrending.videoId]);
   return (
     <ImageBackground
       source={{ uri: videoTopTrending.content }}
@@ -112,10 +162,14 @@ const VideoWatchingScreen = ({ route }: any) => {
           </View>
 
           <View style={{ marginBottom: 30, alignItems: "center" }}>
-            <Image
-              source={require("../assets/heart.png")}
-              style={{ marginBottom: 5 }}
-            />
+            <TouchableOpacity onPress={handleLikeVideo}>
+              <Icon
+                name="heart"
+                size={25}
+                color={like ? "red" : "gray"}
+                style={{ marginBottom: 5 }}
+              />
+            </TouchableOpacity>
             <Text style={styles.infoText}>
               {formatViews(videoTopTrending.likes)}
             </Text>
@@ -128,7 +182,7 @@ const VideoWatchingScreen = ({ route }: any) => {
                 style={{ marginBottom: 5 }}
               />
               <Text style={styles.infoText}>
-                {formatViews(videoTopTrending.comments.length)}
+                {formatViews(comments.length)}
               </Text>
             </View>
           </TouchableOpacity>
@@ -172,8 +226,12 @@ const VideoWatchingScreen = ({ route }: any) => {
                       paddingLeft: 10,
                       backgroundColor: "#F3F4F6",
                     }}
+                    onChangeText={(text) => setComment(text)}
                   />
-                  <Image source={require("../assets/send.png")} />
+
+                  <TouchableOpacity onPress={sendComment}>
+                    <Image source={require("../assets/send.png")} />
+                  </TouchableOpacity>
                 </View>
               </View>
             </View>
