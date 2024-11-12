@@ -70,6 +70,20 @@ interface FilterType {
   name: string;
   image: string;
 }
+interface FriendType {
+  userId: string;
+  name: string;
+  avatar: string;
+}
+interface FriendRecommendType {
+  userId: string;
+  name: string;
+  avatar: string;
+  userFriendId: string;
+  nameFriend: string;
+  avatarFriend: string;
+}
+
 export interface UserStoryProps {
   userStory: UserStoryType;
 }
@@ -105,6 +119,18 @@ export interface CommentProps {
 }
 export interface CommentListProps {
   comments: CommentType[];
+}
+export interface FriendProps {
+  friend: FriendType;
+}
+export interface FriendListProps {
+  friends: FriendType[];
+}
+export interface FriendRecommendProps {
+  friendRecommend: FriendRecommendType;
+}
+export interface FriendRecommendListProps {
+  friendRecommends: FriendRecommendType[];
 }
 export interface AudioProps {
   audio: AudioType;

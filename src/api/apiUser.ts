@@ -132,8 +132,8 @@ export const getTopTrending = async () => {
       (a: any, b: any) => b.views - a.views
     );
 
-    // Lấy 6 video có lượt xem cao nhất
-    const topUsers = sortedUsers.slice(0, 6);
+    // Lấy 8 video có lượt xem cao nhất
+    const topUsers = sortedUsers.slice(0, 8);
 
     return topUsers;
   } catch (error: any) {
@@ -295,7 +295,7 @@ export const saveVideo = async (videoLiked: any) => {
       console.log("Video saved ", [...userData.saved, videoLiked]);
     }
   } catch (error: any) {
-    console.error("Error posting comment:", error.message);
+    console.error("Error:", error.message);
   }
 };
 export const unSaveVideo = async (videoUnLiked: any) => {
@@ -324,7 +324,7 @@ export const unSaveVideo = async (videoUnLiked: any) => {
       );
     }
   } catch (error: any) {
-    console.error("Error posting comment:", error.message);
+    console.error("Error :", error.message);
   }
 };
 
@@ -344,7 +344,7 @@ export const getVideoSaved = async () => {
       return userData.saved;
     }
   } catch (error: any) {
-    console.error("Error posting comment:", error.message);
+    console.error("Error :", error.message);
   }
 };
 
@@ -391,9 +391,25 @@ export const handleSaveFowllow = async (targetUserId: string) => {
       await updateDoc(targetUserDocRef, {
         followers: [...targetUserData.followers, newFollower],
       });
+
+      targetUserData.following.map((follow: any) => {
+        if (follow.userId === currentUserId) {
+          updateDoc(userDocRef, {
+            friends: [...userData.friends, newFollowing],
+          });
+          console.log("newFriendLogin", [...userData.friends, newFollowing]);
+          updateDoc(targetUserDocRef, {
+            friends: [...targetUserData.friends, newFollower],
+          });
+          console.log("newFriendTaget", [
+            ...targetUserData.friends,
+            newFollower,
+          ]);
+        }
+      });
     }
   } catch (error: any) {
-    console.error("Error posting comment:", error.message);
+    console.error("Error :", error.message);
   }
 };
 
@@ -431,9 +447,15 @@ export const handleUnSaveFowllow = async (targetUserId: string) => {
           (user: any) => user.userId !== currentUserId
         ),
       });
+
+      await updateDoc(userDocRef, {
+        friends: userData.friends.filter(
+          (user: any) => user.userId !== targetUserId
+        ),
+      });
     }
   } catch (error: any) {
-    console.error("Error posting comment:", error.message);
+    console.error("Error :", error.message);
   }
 };
 
@@ -453,7 +475,7 @@ export const getFollower = async () => {
       return userData.followers;
     }
   } catch (error: any) {
-    console.error("Error posting comment:", error.message);
+    console.error("Error  :", error.message);
   }
 };
 
@@ -473,6 +495,77 @@ export const getFollowing = async () => {
       return userData.following;
     }
   } catch (error: any) {
-    console.error("Error posting comment:", error.message);
+    console.error("Error :", error.message);
+  }
+};
+
+export const getFriends = async () => {
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const currentUserId = currentUser.uid;
+      const userDocRef = doc(db, "users", currentUserId);
+      const userDoc = await getDoc(userDocRef);
+      const userData = userDoc.data();
+
+      if (!userData) {
+        console.error("User not found");
+        return;
+      }
+      return userData.friends;
+    }
+  } catch (error: any) {
+    console.error("Error:", error.message);
+  }
+};
+
+export const getFriendsOfMyFriends = async () => {
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const currentUserId = currentUser.uid;
+      const userDocRef = doc(db, "users", currentUserId);
+      const userDoc = await getDoc(userDocRef);
+      const userData = userDoc.data();
+
+      if (!userData) {
+        console.error("User not found");
+        return;
+      }
+      let listFindFriends: any = [];
+
+      for (const friend of userData.friends) {
+        const friendUserId = friend.userId;
+        const friendDocRef = doc(db, "users", friendUserId);
+
+        try {
+          const friendDoc = await getDoc(friendDocRef);
+          const friendData = friendDoc.data();
+
+          if (!friendData) {
+            console.error("User friend not found");
+            continue;
+          }
+
+          friendData.friends.forEach((friend: any) => {
+            if (friend.userId !== currentUserId) {
+              const friendWithCustomFields = {
+                ...friend,
+                userIdFriend: friendUserId,
+                avatarFriend: friendData.avatar,
+                nameFriend: friendData.name,
+              };
+              listFindFriends.push(friendWithCustomFields);
+            }
+          });
+        } catch (error) {
+          console.error("Error fetching friend data:", error);
+        }
+      }
+
+      return listFindFriends;
+    }
+  } catch (error: any) {
+    console.error("Error:", error.message);
   }
 };

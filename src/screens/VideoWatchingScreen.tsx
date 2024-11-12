@@ -164,7 +164,7 @@ const VideoWatchingScreen = ({ route }: any) => {
               style={{ width: 40, height: 40 }}
               resizeMode="contain"
             />
-            {isFllowing ? null : (
+            {isFllowing || userId === videoTopTrending.userId ? null : (
               <TouchableOpacity
                 style={{
                   backgroundColor: "#0D99FF",
