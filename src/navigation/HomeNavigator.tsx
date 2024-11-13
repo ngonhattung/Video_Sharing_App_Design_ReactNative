@@ -1,17 +1,28 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { View, Text } from "react-native";
+import React, { useEffect } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import HomeScreen from '../screens/HomeScreen';
-import VideoWatchingScreen from '../screens/VideoWatchingScreen';
-import VideoStreamingScreen from '../screens/VideoStreamingScreen';
-
+import HomeScreen from "../screens/HomeScreen";
+import VideoWatchingScreen from "../screens/VideoWatchingScreen";
+import VideoStreamingScreen from "../screens/VideoStreamingScreen";
+import LoginScreen from "../screens/LoginScreen";
+import RegisterScreen from "../screens/RegisterScreen";
 const Stack = createNativeStackNavigator();
 const HomeNavigator = () => {
   return (
-    <Stack.Navigator initialRouteName="Home">
+    <Stack.Navigator initialRouteName="LoginScreen">
       <Stack.Screen
-        name="Home"
+        name="HomePage"
         component={HomeScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="LoginScreen"
+        component={LoginScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="RegisterScreen"
+        component={RegisterScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen
@@ -25,7 +36,7 @@ const HomeNavigator = () => {
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
-  )
-}
+  );
+};
 
-export default HomeNavigator
+export default HomeNavigator;

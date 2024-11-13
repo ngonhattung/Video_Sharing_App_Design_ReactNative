@@ -1,235 +1,259 @@
-import { View, Text, StyleSheet, Image, Pressable, FlatList } from 'react-native'
-import React from 'react';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Pressable,
+  FlatList,
+  Dimensions,
+} from "react-native";
+import React from "react";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useState, useEffect } from "react";
 import { getFollowing, getFollower } from "../api/apiFollowing";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
+import * as apiUser from "../api/apiUser";
+import { useDispatch, useSelector } from "react-redux";
+import { count } from "firebase/firestore";
+import { setHideTabBar } from "../redux/tabBarSlice";
 
-const suggestForYouDB = [
-  {
-    "id": 1,
-    "img": "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
-    "name": "John Doe",
-    "status": "Follow"
-  },
-  {
-    "id": 2,
-    "img": "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
-    "name": "John Doe",
-    "status": "Follow"
-  },
-  {
-    "id": 3,
-    "img": "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
-    "name": "John Doe",
-    "status": "Follow"
-  },
-  {
-    "id": 4,
-    "img": "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
-    "name": "John Doe",
-    "status": "Follow"
-  },
-]
+const { width, height } = Dimensions.get("window");
+const avatarSize = width * 0.14;
+const itemWidth = width * 0.33;
+const itemHeight = height * 0.38;
+const textSize = 16;
 
-const pressOnProfile = (navigation: any) => {
-  navigation.navigate('ProfileDetailScreen',
-    {
-      user: {
-        name: 'John Doe',
-        img: 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg',
-        bio: 'I love a colorful life'
-      }
-    });
-}
-
-interface ObjItem {
-  id: number;
-  img: string;
-  name: string;
-  status: string;
-}
-const ItemFollowing = ({ item }: { item: ObjItem }) => {
-  const navigation = useNavigation();
-  return (
-    <Pressable style={{ flexDirection: 'row', padding: 15 }}
-      onPress={() => pressOnProfile(navigation)}>
-      <Image source={{ uri: item.img }}
-        style={{ width: 36, height: 36, borderRadius: 50, marginRight: 10 }}
-      />
-      <Text>{item.name}</Text>
-      <Pressable style={[{
-        marginLeft: 'auto',
-        borderWidth: 1,
-        borderColor: '#555',
-        padding: 10,
-        width: 100,
-        borderRadius: 5,
-        justifyContent: 'center',
-        alignItems: 'center'
-      }, item.status === 'Follow' && { width: 100, backgroundColor: '#379AE6', borderWidth: 0 }]}
-      >
-        <Text style={[{ color: '#555' }, item.status === 'Follow' && { color: 'white' }]}>{item.status}</Text>
-      </Pressable>
-    </Pressable>
-  );
-}
-
-const ItemFollower = ({ item }: { item: ObjItem }) => {
-  const navigation = useNavigation();
-  return (
-    <Pressable style={{ flexDirection: 'row', padding: 15 }}
-      onPress={() => pressOnProfile(navigation)}>
-      <Image source={{ uri: item.img }}
-        style={{ width: 36, height: 36, borderRadius: 50, marginRight: 10 }}
-      />
-      <Text>{item.name}</Text>
-      <Pressable style={[{
-        marginLeft: 'auto',
-        backgroundColor: '#eee',
-        borderColor: '#555',
-        padding: 10,
-        borderRadius: 5,
-        width: 100,
-        justifyContent: 'center',
-        alignItems: 'center'
-      }, item.status === 'Follow lại' && { width: 100, backgroundColor: '#de3c41', borderWidth: 0 }]}>
-        <Text style={[{ color: '#555' }, item.status === 'Follow lại' && { color: 'white' }]}>{item.status}</Text>
-      </Pressable>
-    </Pressable>
-  );
-}
-
-const ItemSuggestForYou = ({ item }: { item: ObjItem }) => {
-  const navigation = useNavigation();
-  return (
-    <Pressable style={{ flexDirection: 'row', padding: 15 }}
-      onPress={() => pressOnProfile(navigation)}>
-      <Image source={{ uri: item.img }}
-        style={{ width: 36, height: 36, borderRadius: 50, marginRight: 10 }}
-      />
-      <Text>{item.name}</Text>
-      <Pressable style={[{
-        marginLeft: 'auto',
-        borderWidth: 1,
-        borderColor: '#555',
-        padding: 10,
-        width: 100,
-        borderRadius: 5,
-        justifyContent: 'center',
-        alignItems: 'center'
-      }, item.status === 'Follow' && { width: 100, backgroundColor: '#379AE6', borderWidth: 0 }]}
-      >
-        <Text style={[{ color: '#555' }, item.status === 'Follow' && { color: 'white' }]}>{item.status}</Text>
-      </Pressable>
-    </Pressable>
-  );
-}
+const convertNumberToString = (num: number) => {
+  if (num > 1000000) {
+    return (num / 1000000).toFixed(1) + "M";
+  } else if (num > 1000) {
+    return (num / 1000).toFixed(1) + "K";
+  } else {
+    return num;
+  }
+};
 
 const FollowScreen = ({ route }: { route: any }) => {
-  const [typeFilter, setTypeFilter] = useState('followers');
-  const { user, img } = route.params;
-
-  const [list, setList] = useState([]);
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const auth = useSelector((state: any) => state.auth);
+  const { user, img, type } = route.params;
+  const [typeFilter, setTypeFilter] = useState(type);
+  const [myFollower, setMyFollower] = useState<any>([]);
+  const [myFollowing, setMyFollowing] = useState<any>([]);
 
   useEffect(() => {
-    const fetchFollowing = async () => {
-      const response = await getFollowing();
-      setList(response);
+    const fetchMyFollower = async () => {
+      try {
+        const res = await apiUser.getFollower();
+        console.log("fetchMyFollower", res);
+        setMyFollower(res);
+      } catch (error) {
+        console.log("fetchMyFollower", error);
+      }
     };
 
-    const fetchFollower = async () => {
-      const response = await getFollower();
-      setList(response);
+    const fetchMyFollowing = async () => {
+      try {
+        const res = await apiUser.getFollowing();
+        console.log("fetchMyFollowing", res);
+        setMyFollowing(res);
+      } catch (error) {
+        console.log("fetchMyFollowing", error);
+      }
     };
+    fetchMyFollower();
+    fetchMyFollowing();
+  }, [typeFilter]);
 
-    if (typeFilter === 'followers') {
-      fetchFollower();
-    } else {
-      fetchFollowing();
+  const checknFollow = (arr: any) => {
+    let count = 0;
+    if (arr !== undefined) {
+      if (arr.length > 0) {
+        count = arr.length;
+      }
     }
-  }, [list]);
+    return count;
+  };
+
+  const checkDisplay = () => {
+    if (typeFilter === "followers") {
+      return myFollower;
+    } else {
+      return myFollowing;
+    }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.userContainer}>
         <View style={styles.userLeft}>
-          <Image source={img}
-            style={{ width: 36, height: 36, borderRadius: 50, marginRight: 10 }}
+          <Ionicons
+            name="chevron-back-outline"
+            size={24}
+            color="black"
+            style={{ marginRight: 5, padding: 10 }}
+            onPress={() => {
+              dispatch(setHideTabBar(false));
+              navigation.goBack();
+            }}
           />
-          <Text
-            style={{ fontSize: 15, fontWeight: 600 }}>{user}</Text>
+          <Image
+            source={{ uri: img }}
+            style={{
+              resizeMode: "contain",
+              width: avatarSize - 8,
+              height: avatarSize - 8,
+              borderRadius: 50,
+              padding: 2,
+              margin: "auto",
+            }}
+          />
+          <Text style={{ padding: 10, fontSize: textSize, fontWeight: 600 }}>
+            {user}
+          </Text>
         </View>
         <View style={styles.userRight}>
-          <Pressable style={{ marginRight: 5 }}>
+          <Pressable style={{ marginRight: 20, padding: 10 }}>
             <Ionicons name="search-outline" size={24} color="black" />
           </Pressable>
-          <Pressable>
+          <Pressable style={{ padding: 10 }}>
             <Ionicons name="filter-outline" size={24} color="black" />
           </Pressable>
         </View>
       </View>
 
-      <View style={{ flexDirection: 'row', justifyContent: 'center', borderBottomWidth: 1, borderBottomColor: '#eee', padding: 10 }}>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          borderBottomWidth: 1,
+          borderBottomColor: "#eee",
+          padding: 10,
+        }}
+      >
         <Pressable
-          style={[{
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingHorizontal: 30,
-            paddingVertical: 10
-          }, typeFilter === 'followers' && { borderBottomWidth: 3, borderBottomColor: '#F9A6C3' }]}
-          onPress={() => setTypeFilter('followers')}>
-          <Text style={[{ fontSize: 15, fontWeight: 500, color: '#aaa' }, typeFilter === 'followers' && { color: '#F9A6C3' }]}>368 followers</Text>
+          style={[
+            styles.filterButton,
+            typeFilter === "followers" && styles.filterActive,
+          ]}
+          onPress={() => setTypeFilter("followers")}
+        >
+          <Text
+            style={[
+              { fontSize: textSize, fontWeight: 500, color: "#aaa" },
+              typeFilter === "followers" && { color: "#F9A6C3" },
+            ]}
+          >
+            {convertNumberToString(checknFollow(myFollower))} followers
+          </Text>
         </Pressable>
         <Pressable
-          style={[{
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingHorizontal: 30,
-            paddingVertical: 10
-          }, typeFilter === 'following' && { borderBottomWidth: 3, borderBottomColor: '#F9A6C3' }]}
-          onPress={() => setTypeFilter('following')}>
-          <Text style={[{ fontSize: 15, fontWeight: 500, color: '#aaa' }, typeFilter === 'following' && { color: '#F9A6C3' }]}>456 following</Text>
+          style={[
+            styles.filterButton,
+            typeFilter === "following" && styles.filterActive,
+          ]}
+          onPress={() => setTypeFilter("following")}
+        >
+          <Text
+            style={[
+              { fontSize: textSize, fontWeight: 500, color: "#aaa" },
+              typeFilter === "following" && { color: "#F9A6C3" },
+            ]}
+          >
+            {convertNumberToString(checknFollow(myFollowing))} following
+          </Text>
         </Pressable>
-      </View>
-      <View style={{ flex: 1.4 }}>
-        <FlatList
-          data={list}
-          renderItem={({ item }) => typeFilter === 'following' ? <ItemFollowing item={item} /> : <ItemFollower item={item} />}
-        />
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 15, fontWeight: 500, padding: 10 }}>Suggest for you</Text>
         <FlatList
-          data={suggestForYouDB}
-          renderItem={({ item }) => <ItemSuggestForYou item={item} />}
+          data={checkDisplay()}
+          renderItem={({ item }) => <Item item={item} />}
         />
       </View>
     </View>
+  );
+};
 
-  )
-}
-
-export default FollowScreen
+export default FollowScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   userContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
+    flexDirection: "row",
   },
   userLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   userRight: {
-    marginLeft: 'auto',
-    flexDirection: 'row',
+    marginLeft: "auto",
+    flexDirection: "row",
   },
+  filterButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 30,
+    paddingVertical: 10,
+  },
+  filterActive: {
+    borderBottomWidth: 3,
+    borderBottomColor: "#F9A6C3",
+  },
+});
 
-})
+interface ObjItem {
+  userId: string;
+  avatar: string;
+  name: string;
+}
+const Item = ({ item }: { item: ObjItem }) => {
+  const navigation = useNavigation();
+
+  const pressOnProfile = (navigation: any) => {
+    navigation.navigate("ProfileDetailScreen", {
+      userTransfer: {
+        userId: item.userId,
+        avatar: item.avatar,
+        name: item.name,
+      },
+    });
+  };
+  return (
+    <Pressable
+      style={{
+        flexDirection: "row",
+        padding: 15,
+        alignItems: "center",
+        backgroundColor: "#f8f8f8",
+        borderRadius: 5,
+        margin: 3,
+      }}
+      onPress={() => pressOnProfile(navigation)}
+    >
+      <Image
+        source={{ uri: item.avatar }}
+        style={{
+          resizeMode: "contain",
+          width: avatarSize,
+          height: avatarSize,
+          borderRadius: 50,
+          padding: 2,
+        }}
+      />
+      <Text
+        style={{
+          fontSize: textSize,
+          fontWeight: 600,
+          padding: 10,
+          marginLeft: 5,
+        }}
+      >
+        {item.name}
+      </Text>
+    </Pressable>
+  );
+};
