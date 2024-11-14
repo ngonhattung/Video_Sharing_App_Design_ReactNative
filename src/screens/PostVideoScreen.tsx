@@ -14,12 +14,45 @@ import { useNavigation } from "@react-navigation/native";
 import SelectDropdown from "react-native-select-dropdown";
 import { SelectList } from "react-native-dropdown-select-list";
 import * as ImagePicker from "expo-image-picker";
-const PostVideoScreen = () => {
-  const navigation = useNavigation();
+import * as apiUser from "../api/apiUser";
+import { RootStackParamList } from "../types/interfaces";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { useDispatch } from "react-redux";
+import { setHideTabBar } from "../redux/tabBarSlice";
+type HomeScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "HomePage"
+>;
+const PostVideoScreen = ({ route }: any) => {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+  const dispatch = useDispatch();
   const [isEnabled, setIsEnabled] = useState(false);
   const [isEnabledFB, setIsEnabledFB] = useState(false);
   const [isEnabledX, setIsEnabledX] = useState(false);
   const [isEnabledIG, setIsEnabledIG] = useState(false);
+  const [hashtag, setHashtag] = useState("");
+  const [hashtags, setHashtags] = useState<string[]>([]);
+  const handleTextChange = (text: any) => {
+    if (!text.startsWith("#")) {
+      text = `#${text}`;
+    }
+    setHashtag(text);
+  };
+  const addHashTags = () => {
+    if (hashtag.trim() === "") {
+      Alert.alert("Hashtag is empty", "Please input hashtag");
+      return;
+    }
+    setHashtags([...hashtags, hashtag]);
+    setHashtag("");
+  };
+  const removeHashTag = (index: number) => {
+    const newHashtags = hashtags.filter((_, i) => i !== index);
+    setHashtags(newHashtags);
+  };
+  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState("");
+  const { uriImage, audioName } = route.params || {};
 
   const options = [
     { key: "All", value: "All" },
@@ -48,14 +81,34 @@ const PostVideoScreen = () => {
     }
     // Mở thư viện ảnh
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images, // Chỉ chọn ảnh
+      allowsEditing: true, // Cho phép chỉnh sửa ảnh
+      aspect: [4, 3], // Tỉ lệ khung hình khi chỉnh sửa
+      quality: 1, // Chất lượng ảnh (1 là cao nhất)
     });
 
     if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
+      //const uri = result.assets[0].uri;
+      setImageUri(result.assets[0].uri); // Lưu đường dẫn ảnh đã chọn
+    }
+  };
+
+  const postVideo = async () => {
+    try {
+      const newVideo = {
+        title: title,
+        description: description,
+        hashtags: hashtags,
+        image: imageUri !== null ? imageUri : uriImage,
+        audio: audioName,
+      };
+
+      await apiUser.postVideo(newVideo);
+      window.alert("Post video successfully");
+      dispatch(setHideTabBar(false));
+      navigation.navigate("HomePage");
+    } catch (error) {
+      console.log("error", error);
     }
   };
   return (
@@ -90,7 +143,7 @@ const PostVideoScreen = () => {
             />
           ) : (
             <Image
-              source={require("../assets/bgcreate.png")}
+              source={{ uri: uriImage !== undefined ? uriImage : imageUri }}
               style={{
                 width: 200,
                 height: 300,
@@ -119,6 +172,7 @@ const PostVideoScreen = () => {
               }}
               placeholder="Input title"
               placeholderTextColor="#D1D5DB"
+              onChangeText={(text) => setTitle(text)}
             />
           </View>
           <View>
@@ -135,6 +189,7 @@ const PostVideoScreen = () => {
               }}
               placeholder="Input Description"
               placeholderTextColor="#D1D5DB"
+              onChangeText={(text) => setDescription(text)}
             />
           </View>
         </View>
@@ -158,10 +213,31 @@ const PostVideoScreen = () => {
               }}
               placeholder="Input hashtag"
               placeholderTextColor="#D1D5DB"
+              value={hashtag}
+              onChangeText={handleTextChange}
             />
-            <Icon name="plus" size={25} />
+            <TouchableOpacity onPress={addHashTags}>
+              <Icon name="plus" size={25} />
+            </TouchableOpacity>
           </View>
         </View>
+
+        {hashtags.map((item, index) => (
+          <View
+            key={index}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginTop: 10,
+            }}
+          >
+            <Text>{item}</Text>
+            <TouchableOpacity onPress={() => removeHashTag(index)}>
+              <Icon name="times" size={20} />
+            </TouchableOpacity>
+          </View>
+        ))}
 
         <View style={styles.tagPeopleCon}>
           <View>
@@ -276,6 +352,7 @@ const PostVideoScreen = () => {
               borderRadius: 5,
               padding: 10,
             }}
+            onPress={postVideo}
           >
             <View
               style={{

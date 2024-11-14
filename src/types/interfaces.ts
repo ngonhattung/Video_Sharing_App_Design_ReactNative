@@ -152,8 +152,9 @@ export interface FilterListProps {
 export type RootStackParamList = {
   VideoWatchingScreen: { videoTopTrending: VideoTopTrendingType };
   VideoStreamingScreen: { userStreaming: UserStreamingType };
-  PostVideoScreen: undefined;
+  PostVideoScreen: any;
   RegisterScreen: undefined;
   LoginScreen: undefined;
   HomePage: undefined;
+  CreateVideoScreen: any;
 };

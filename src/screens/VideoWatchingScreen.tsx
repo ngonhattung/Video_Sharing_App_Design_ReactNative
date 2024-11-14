@@ -45,6 +45,7 @@ const VideoWatchingScreen = ({ route }: any) => {
       console.error(error);
     }
   };
+
   const sendComment = async () => {
     try {
       const result = await apiUser.postComment(
@@ -69,15 +70,15 @@ const VideoWatchingScreen = ({ route }: any) => {
   };
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const formatViews = (views: any) => {
-    if (views >= 1000000) {
-      return (views / 1000000).toFixed(1) + "M";
-    } else if (views >= 1000) {
-      return (views / 1000).toFixed(1) + "K";
-    } else {
-      return views.toString();
-    }
-  };
+  // const formatViews = (views: any) => {
+  //   if (views >= 1000000) {
+  //     return (views / 1000000).toFixed(1) + "M";
+  //   } else if (views >= 1000) {
+  //     return (views / 1000).toFixed(1) + "K";
+  //   } else {
+  //     return views.toString();
+  //   }
+  // };
   useEffect(() => {
     const fetchComments = async () => {
       try {
@@ -92,7 +93,6 @@ const VideoWatchingScreen = ({ route }: any) => {
     const fetchLikedStatus = async () => {
       try {
         const results = await apiUser.getVideoSaved();
-
         setLike(
           results.some(
             (video: any) => video.videoId === videoTopTrending.videoId
@@ -113,10 +113,11 @@ const VideoWatchingScreen = ({ route }: any) => {
         console.error(error);
       }
     };
-    fetchFollowingStatus();
     fetchLikedStatus();
+    fetchFollowingStatus();
     fetchComments();
   }, [videoTopTrending.videoId]);
+
   return (
     <ImageBackground
       source={{ uri: videoTopTrending.content }}
@@ -195,7 +196,8 @@ const VideoWatchingScreen = ({ route }: any) => {
               />
             </TouchableOpacity>
             <Text style={styles.infoText}>
-              {formatViews(videoTopTrending.likes)}
+              {/* {formatViews(videoTopTrending.likes)} */}
+              {videoTopTrending.likes}
             </Text>
           </View>
 
@@ -206,7 +208,8 @@ const VideoWatchingScreen = ({ route }: any) => {
                 style={{ marginBottom: 5 }}
               />
               <Text style={styles.infoText}>
-                {formatViews(comments.length)}
+                {/* {formatViews(comments.length)}  */}
+                {comments.length} views
               </Text>
             </View>
           </TouchableOpacity>
@@ -250,6 +253,7 @@ const VideoWatchingScreen = ({ route }: any) => {
                       paddingLeft: 10,
                       backgroundColor: "#F3F4F6",
                     }}
+                    value={comment}
                     onChangeText={(text) => setComment(text)}
                   />
 
