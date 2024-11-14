@@ -448,6 +448,8 @@ export const handleUnSaveFowllow = async (targetUserId: string) => {
         ),
       });
 
+
+
       await updateDoc(userDocRef, {
         friends: userData.friends.filter(
           (user: any) => user.userId !== targetUserId
@@ -579,5 +581,68 @@ export const getUserProfileById = async (userId: string) => {
     return userData;
   } catch (error: any) {
     console.error("Error fetching user profile:", error.message);
+  }
+};
+
+// chech user is friend
+export const checkIsFriend = async (userId: string) => {
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const currentUserId = currentUser.uid;
+      const userDocRef = doc(db, "users", currentUserId);
+      const userDoc = await getDoc(userDocRef);
+      const userData = userDoc.data();
+
+      if (!userData) {
+        console.error("User not found");
+        return;
+      }
+
+      return userData.friends.some((friend: any) => friend.userId === userId);
+    }
+  } catch (error: any) {
+    console.error("Error:", error.message);
+  }
+};
+
+// get all video of all users
+export const getAllVideos = async () => {
+  try {
+    const usersCollectionRef = collection(db, "users");
+    const querySnapshot = await getDocs(usersCollectionRef);
+
+    const allVideos: any = [];
+
+    querySnapshot.forEach((doc) => {
+      const user = doc.data();
+
+      if (Array.isArray(user.videos)) {
+        user.videos.forEach((video: any) => {
+          allVideos.push({
+            userId: doc.id,
+            avatar: user.avatar,
+            userName: user.name,
+            videoId: video.videoId,
+            title: video.title,
+            hashtag: video.hashtag,
+            content: video.content,
+            audio: video.audio,
+            views: video.views,
+            likes: video.likes,
+            comments: video.comments,
+          });
+        });
+      } else {
+        console.error(
+          "User does not have videos or videos is not an array",
+          doc.id
+        );
+      }
+    });
+
+    return allVideos;
+  } catch (error: any) {
+    console.error("Error fetching all videos:", error.message);
   }
 };

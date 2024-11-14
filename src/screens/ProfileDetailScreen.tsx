@@ -5,200 +5,133 @@ import {
   Pressable,
   StyleSheet,
   FlatList,
-  TouchableOpacity,
   ScrollView,
 } from "react-native";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useDispatch } from "react-redux";
 import { setHideTabBar } from "../redux/tabBarSlice";
+import * as apiUser from "../api/apiUser";
+import { Dimensions } from "react-native";
 
-const suggestedAccountsDB = [
-  {
-    id: 1,
-    img: "https://i.pravatar.cc/36?img=6",
-    name: "Ruth Sanders",
-    status: "Follow",
-  },
-  {
-    id: 2,
-    img: "https://i.pravatar.cc/36?img=7",
-    name: "Elaine Fisher",
-    status: "Follow",
-  },
-  {
-    id: 3,
-    img: "https://i.pravatar.cc/36?img=8",
-    name: "Marie Johnson",
-    status: "Follow",
-  },
-  {
-    id: 4,
-    img: "https://i.pravatar.cc/36?img=9",
-    name: "Tommy Lee",
-    status: "Follow",
-  },
-  {
-    id: 5,
-    img: "https://i.pravatar.cc/36?img=11",
-    name: "Tommy Lee",
-    status: "Follow",
-  },
-];
+const { width, height } = Dimensions.get("window");
+const avatarSize = width * 0.16;
+const itemWidth = width * 0.32;
+const itemHeight = height * 0.36;
+const textSize = 16;
 
-const videosDB = [
-  {
-    id: 1,
-    img: "https://picsum.photos/id/71/120/160",
-    views: 124910,
-  },
-  {
-    id: 2,
-    img: "https://picsum.photos/id/73/120/160",
-    views: 224510,
-  },
-  {
-    id: 3,
-    img: "https://picsum.photos/id/69/120/160",
-    views: 2300500,
-  },
-  {
-    id: 4,
-    img: "https://picsum.photos/id/58/120/160",
-    views: 3200502,
-  },
-  {
-    id: 5,
-    img: "https://picsum.photos/id/89/120/160",
-    views: 6689752,
-  },
-];
-const likedDB = [
-  {
-    id: 1,
-    img: "https://picsum.photos/id/51/120/160",
-    views: 924910,
-  },
-  {
-    id: 2,
-    img: "https://picsum.photos/id/46/120/160",
-    views: 248510,
-  },
-  {
-    id: 3,
-    img: "https://picsum.photos/id/79/120/160",
-    views: 1360500,
-  },
-  {
-    id: 4,
-    img: "https://picsum.photos/id/98/120/160",
-    views: 4200502,
-  },
-  {
-    id: 5,
-    img: "https://picsum.photos/id/19/120/160",
-    views: 5689752,
-  },
-];
-
-interface ObjListVideoAndLiked {
-  id: number;
-  img: string;
-  views: number;
-}
-const ListVideoAndLiked = ({ item }: { item: ObjListVideoAndLiked }) => {
-  const convertViews = (views: number) => {
-    if (views > 1000000) {
-      return (views / 1000000).toFixed(1) + "M";
-    } else if (views > 1000) {
-      return (views / 1000).toFixed(1) + "K";
-    } else {
-      return views;
-    }
-  };
-  return (
-    <Pressable style={styles.itemContainer}>
-      <Image style={styles.itemImage} source={{ uri: item.img }} />
-      <View style={styles.viewsText}>
-        <Ionicons name="play-outline" size={14} color="white" />
-        <Text
-          style={{
-            color: "white",
-            fontWeight: 400,
-            fontSize: 10,
-          }}
-        >
-          {convertViews(item.views)} views
-        </Text>
-        <Ionicons
-          name="heart-outline"
-          size={14}
-          color="white"
-          style={{ marginLeft: "auto" }}
-        />
-      </View>
-    </Pressable>
-  );
-};
-
-interface ObjItem {
-  id: number;
-  img: string;
-  name: string;
-  status: string;
-}
-const ItemSuggestForYou = ({ item }: { item: ObjItem }) => {
-  return (
-    <Pressable
-      style={{
-        marginHorizontal: 8,
-        width: 110,
-      }}
-    >
-      <Ionicons
-        style={{ marginLeft: "auto" }}
-        name="close-outline"
-        size={24}
-        color="black"
-      />
-      <Image
-        source={{ uri: item.img }}
-        style={{
-          marginHorizontal: "auto",
-          width: 72,
-          height: 72,
-          borderRadius: 50,
-          borderColor: "#1985ff",
-          borderWidth: 1,
-        }}
-      />
-      <Text style={{ marginHorizontal: "auto", marginVertical: 10 }}>
-        {item.name}
-      </Text>
-      <Pressable
-        style={{
-          padding: 8,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#f54c87",
-          borderRadius: 5,
-        }}
-      >
-        <Text style={{ fontSize: 15, color: "white" }}>{item.status}</Text>
-      </Pressable>
-    </Pressable>
-  );
+const convertNumberToString = (num: number) => {
+  if (num > 1000000) {
+    return (num / 1000000).toFixed(1) + "M";
+  } else if (num > 1000) {
+    return (num / 1000).toFixed(1) + "K";
+  } else {
+    return num;
+  }
 };
 
 const ProfileDetailScreen = ({ route }: { route: any }) => {
   const dispatch = useDispatch();
-  const { user } = route.params;
+  const { userTransfer } = route.params;
   const [typeFilter, setTypeFilter] = useState("videos");
   const navigation = useNavigation<NavigationProp<any>>();
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [nFollowers, setNFollowers] = useState(0);
+  const [nFollowing, setNFollowing] = useState(0);
+  const [nLikes, setNLikes] = useState(0);
+  const [statusFollow, setStatusFollow] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchMyProfile = async () => {
+      try {
+        const res = await apiUser.getUserProfileById(userTransfer.userId);
+        console.log("fetchUserProfile", res);
+        setUserProfile(res);
+      } catch (error) {
+        console.log("fetchUserProfile", error);
+      }
+    };
+    fetchMyProfile();
+  }, [typeFilter, statusFollow]);
+
+  useEffect(() => {
+    const checkIsFriend = async () => {
+      try {
+        const res = await apiUser.checkIsFriend(userTransfer.userId);
+        console.log("checkIsFriend", res);
+        if (res === true) {
+          setStatusFollow("Unfollow");
+        } else {
+          setStatusFollow("Follow");
+        }
+      } catch (error) {
+        console.log("checkIsFriend", error);
+      }
+    };
+    checkIsFriend();
+    setNFollowers(userProfile?.followers.length);
+    setNFollowing(userProfile?.following.length);
+    setNLikes(countLikes(userProfile));
+  }, [userProfile]);
+  const handleFollowUser = async () => {
+    if (statusFollow === "Follow") {
+      setStatusFollow("Unfollow");
+      console.log("userTransfer.userId", userTransfer.userId);
+      try {
+        await apiUser.handleSaveFowllow(userTransfer.userId);
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      setStatusFollow("Follow");
+      try {
+        await apiUser.handleUnSaveFowllow(userTransfer.userId);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
+  const countLikes = (arr: any) => {
+    let count = 0;
+    if (arr?.videos !== undefined) {
+      if (arr?.videos.length > 0) {
+        arr?.videos.forEach((video: any) => {
+          count += video.likes;
+        });
+      }
+    }
+    return count;
+  };
+
+  const checkDisplay = () => {
+    if (typeFilter === "videos") {
+      const temp: any = [];
+      userProfile?.videos.forEach((video: any) => {
+        temp.push({
+          userId: userTransfer.userId,
+          avatar: userProfile?.avatar,
+          userName: userProfile?.name,
+          videoId: video.videoId,
+          title: video.title,
+          hashtag: video.hashtag,
+          content: video.content,
+          audio: video.audio,
+          views: video.views,
+          likes: video.likes,
+          comments: video.comments,
+        });
+      });
+      return temp;
+    } else {
+      return userProfile?.saved;
+    }
+  };
+
   return (
-    <ScrollView style={{ backgroundColor: "white", flex: 1, padding: 10 }}>
+    <ScrollView style={{ backgroundColor: "white", flex: 1 }}>
       <View>
         <View style={{ flexDirection: "row" }}>
           <Pressable
@@ -219,90 +152,92 @@ const ProfileDetailScreen = ({ route }: { route: any }) => {
         </View>
       </View>
 
-      <View style={styles.infoContainer}>
+      <View>
         <Image
-          source={{ uri: user.img }}
+          source={{ uri: userProfile?.avatar }}
           style={{
-            width: 72,
-            height: 72,
+            resizeMode: "contain",
+            width: avatarSize,
+            height: avatarSize,
             borderRadius: 50,
-            borderColor: "#1985ff",
-            borderWidth: 1,
+            padding: 2,
+            margin: "auto",
           }}
         />
-        <Text style={{ fontWeight: "500", fontSize: 18 }}>{user.name}</Text>
-        <Text style={{ color: "#444", marginVertical: 10 }}>{user.bio}</Text>
-        <View style={styles.infoFollowContainer}>
-          <Pressable
-            style={styles.infoItem}
-            onPress={() =>
-              navigation.navigate("FollowScreen", {
-                user: "Ruth Sanders",
-                img: require("../assets/avatar.png"),
-              })
-            }
-          >
-            <Text>203</Text>
-            <Text>Following</Text>
-          </Pressable>
-          <Pressable style={styles.infoItem}>
-            <Text>628</Text>
-            <Text>Followers</Text>
-          </Pressable>
-          <Pressable style={styles.infoItem}>
-            <Text>2634</Text>
-            <Text>Like</Text>
-          </Pressable>
-        </View>
-        <View style={{ flexDirection: "row", marginVertical: 30 }}>
-          <Pressable
-            style={{
-              borderRadius: 5,
-              padding: 10,
-              width: 100,
-              backgroundColor: "#fff0f5",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ color: "#f54c87", fontSize: 15, fontWeight: 500 }}>
-              Follow
-            </Text>
-          </Pressable>
-          <Pressable
-            style={{
-              borderRadius: 5,
-              marginLeft: 10,
-              padding: 10,
-              width: 100,
-              backgroundColor: "#fff0f5",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ color: "#f54c87", fontSize: 15, fontWeight: 500 }}>
-              Message
-            </Text>
-          </Pressable>
-        </View>
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: 20,
+            fontWeight: "bold",
+            marginTop: 10,
+          }}
+        >
+          {userProfile?.name}
+        </Text>
       </View>
 
-      <View style={{ flexDirection: "row" }}>
-        <Text style={{ fontSize: 16, fontWeight: 500, padding: 10 }}>
-          Suggested accounts
-        </Text>
-        <Pressable style={{ marginLeft: "auto", padding: 10 }}>
-          <Text style={{ color: "#faa7c4", fontSize: 15 }}>View more</Text>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-around",
+          marginTop: 15,
+        }}
+      >
+        <Pressable style={styles.infoItem}>
+          <Text style={styles.infoText}>
+            {convertNumberToString(nFollowing)}
+          </Text>
+          <Text style={styles.infoText}>Following</Text>
+        </Pressable>
+        <Pressable style={styles.infoItem}>
+          <Text style={styles.infoText}>
+            {convertNumberToString(nFollowers)}
+          </Text>
+          <Text style={styles.infoText}>Followers</Text>
+        </Pressable>
+        <Pressable style={styles.infoItem}>
+          <Text style={styles.infoText}>{convertNumberToString(nLikes)}</Text>
+          <Text style={styles.infoText}>Like</Text>
         </Pressable>
       </View>
 
-      <View style={{ height: 175 }}>
-        <FlatList
-          data={suggestedAccountsDB}
-          renderItem={({ item }) => <ItemSuggestForYou item={item} />}
-          keyExtractor={(item) => item.id.toString()}
-          horizontal={true}
-        />
+      <View
+        style={{
+          flexDirection: "row",
+          marginTop: 30,
+          alignSelf: "center",
+        }}
+      >
+        <Pressable
+          style={{
+            borderRadius: 5,
+            padding: 10,
+            width: 100,
+            backgroundColor: "#fff0f5",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+          onPress={handleFollowUser}
+        >
+          <Text style={{ color: "#f54c87", fontSize: 15, fontWeight: 500 }}>
+            {statusFollow}
+          </Text>
+        </Pressable>
+        <Pressable
+          style={{
+            borderRadius: 5,
+            marginLeft: 30,
+            padding: 10,
+            width: 100,
+            backgroundColor: "#fff0f5",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ color: "#f54c87", fontSize: 15, fontWeight: 500 }}>
+            Message
+          </Text>
+        </Pressable>
       </View>
 
       <View
@@ -338,7 +273,7 @@ const ProfileDetailScreen = ({ route }: { route: any }) => {
           />
           <Text
             style={[
-              { fontSize: 15, fontWeight: 500, color: "#aaa" },
+              { fontSize: 15, fontWeight: 500, color: "#aaa", marginLeft: 5 },
               typeFilter === "videos" && { color: "#F9A6C3" },
             ]}
           >
@@ -369,7 +304,7 @@ const ProfileDetailScreen = ({ route }: { route: any }) => {
           />
           <Text
             style={[
-              { fontSize: 15, fontWeight: 500, color: "#aaa" },
+              { fontSize: 15, fontWeight: 500, color: "#aaa", marginLeft: 5 },
               typeFilter === "liked" && { color: "#F9A6C3" },
             ]}
           >
@@ -378,10 +313,11 @@ const ProfileDetailScreen = ({ route }: { route: any }) => {
         </Pressable>
       </View>
 
-      <View style={{ flex: 1, alignItems: "center" }}>
+      <View style={{ flex: 1, marginTop: 20 }}>
         <FlatList
-          data={typeFilter === "videos" ? videosDB : likedDB}
-          renderItem={({ item }) => <ListVideoAndLiked item={item} />}
+          data={checkDisplay()}
+          renderItem={({ item }) => <Item item={item} />}
+          keyExtractor={(item) => item.videoId}
           numColumns={3}
         />
       </View>
@@ -421,4 +357,91 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: 110,
   },
+  infoText: {
+    color: "#b1b4bd",
+    fontSize: textSize,
+    marginTop: 5,
+    fontWeight: 500,
+  },
 });
+
+interface ObjItem {
+  userId: string;
+  avatar: string;
+  userName: string;
+  videoId: string;
+  title: string;
+  hashtag: string[];
+  content: string;
+  audio: string;
+  views: number;
+  likes: number;
+  comments: number;
+}
+
+const Item = ({ item }: { item: ObjItem }) => {
+  // console.log("item", item);
+  const dispatch = useDispatch();
+  const navigation = useNavigation<NavigationProp<any>>();
+  const convertViews = (views: number) => {
+    if (views > 1000000) {
+      return (views / 1000000).toFixed(1) + "M";
+    } else if (views > 1000) {
+      return (views / 1000).toFixed(1) + "K";
+    } else {
+      return views;
+    }
+  };
+
+  return (
+    <Pressable
+      style={{
+        width: itemWidth,
+        height: itemHeight,
+        margin: 2,
+      }}
+      onPress={() => {
+        dispatch(setHideTabBar(true));
+        navigation.navigate("VideoWatchingScreen", {
+          videoTopTrending: item,
+        });
+      }}
+    >
+      <Image
+        source={{ uri: item.content }}
+        style={{
+          width: itemWidth,
+          height: itemHeight,
+          borderRadius: 5,
+          margin: "auto",
+        }}
+      />
+      <View
+        style={{
+          position: "absolute",
+          bottom: 5,
+          left: 5,
+          flexDirection: "row",
+          width: 110,
+        }}
+      >
+        <Ionicons
+          name="play-outline"
+          size={14}
+          color="white"
+          style={{ alignSelf: "center" }}
+        />
+        <Text
+          style={{
+            color: "white",
+            fontWeight: "400",
+            fontSize: 10,
+            alignSelf: "center",
+          }}
+        >
+          {convertViews(item.views)} views
+        </Text>
+      </View>
+    </Pressable>
+  );
+};

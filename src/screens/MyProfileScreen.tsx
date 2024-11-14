@@ -6,6 +6,7 @@ import {
   Pressable,
   FlatList,
   Dimensions,
+  ScrollView,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
@@ -16,23 +17,26 @@ import { setHideTabBar } from "../redux/tabBarSlice";
 
 const { width, height } = Dimensions.get("window");
 const avatarSize = width * 0.16;
-const itemWidth = width * 0.33;
-const itemHeight = height * 0.38;
+const itemWidth = width * 0.32;
+const itemHeight = height * 0.36;
 const textSize = 16;
 
 const convertNumberToString = (num: number) => {
-  // if (num > 1000000) {
-  //   return (num / 1000000).toFixed(1) + 'M';
-  // } else if (num > 1000) {
-  //   return (num / 1000).toFixed(1) + 'K';
-  // } else {
-  return num;
-  // }
+  if (num > 1000000) {
+    return (num / 1000000).toFixed(1) + "M";
+  } else if (num > 1000) {
+    return (num / 1000).toFixed(1) + "K";
+  } else {
+    return num;
+  }
 };
 
 const MyProfileScreen = () => {
   const auth = useSelector((state: any) => state.auth);
   const [myProfile, setMyProfile] = useState<any>(null);
+  const [nFollowers, setNFollowers] = useState(0);
+  const [nFollowing, setNFollowing] = useState(0);
+  const [nLikes, setNLikes] = useState(0);
   const [selectedList, setSelectedList] = useState("videos");
   const navigation = useNavigation<NavigationProp<any>>();
   useEffect(() => {
@@ -48,11 +52,17 @@ const MyProfileScreen = () => {
     fetchMyProfile();
   }, [selectedList]);
 
-  const countLikes = () => {
+  useEffect(() => {
+    setNFollowers(myProfile?.followers.length);
+    setNFollowing(myProfile?.following.length);
+    setNLikes(countLikes(myProfile));
+  }, [myProfile]);
+
+  const countLikes = (arr: any) => {
     let count = 0;
-    if (myProfile?.videos !== undefined) {
-      if (myProfile?.videos.length > 0) {
-        myProfile?.videos.forEach((video: any) => {
+    if (arr?.videos !== undefined) {
+      if (arr?.videos.length > 0) {
+        arr?.videos.forEach((video: any) => {
           count += video.likes;
         });
       }
@@ -85,14 +95,14 @@ const MyProfileScreen = () => {
   };
   const dispatch = useDispatch();
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.navContainer}>
         <View style={styles.navLeft}>
           <Pressable>
-            <Ionicons name="menu-sharp" size={24} color="black" />
+            {/* <Ionicons name="menu-sharp" size={24} color="black" /> */}
           </Pressable>
           <Pressable style={{ marginLeft: 15 }}>
-            <Ionicons name="person-add-outline" size={24} color="black" />
+            {/* <Ionicons name="person-add-outline" size={24} color="black" /> */}
           </Pressable>
         </View>
         <View style={styles.navRight}>
@@ -150,7 +160,7 @@ const MyProfileScreen = () => {
           }}
         >
           <Text style={styles.infoText}>
-            {convertNumberToString(myProfile?.following.length)}
+            {convertNumberToString(nFollowing)}
           </Text>
           <Text style={styles.infoText}>Following</Text>
         </Pressable>
@@ -166,14 +176,12 @@ const MyProfileScreen = () => {
           }}
         >
           <Text style={styles.infoText}>
-            {convertNumberToString(myProfile?.followers.length)}
+            {convertNumberToString(nFollowers)}
           </Text>
           <Text style={styles.infoText}>Followers</Text>
         </Pressable>
         <Pressable style={styles.infoItem}>
-          <Text style={styles.infoText}>
-            {convertNumberToString(countLikes())}
-          </Text>
+          <Text style={styles.infoText}>{convertNumberToString(nLikes)}</Text>
           <Text style={styles.infoText}>Like</Text>
         </Pressable>
       </View>
@@ -215,12 +223,13 @@ const MyProfileScreen = () => {
         <FlatList
           data={checkDisplay()}
           renderItem={({ item }) => <Item item={item} />}
+          keyExtractor={(item) => item.videoId}
           numColumns={3}
         />
       </View>
 
       {/* list */}
-    </View>
+    </ScrollView>
   );
 };
 
@@ -288,7 +297,7 @@ interface ObjItem {
 }
 
 const Item = ({ item }: { item: ObjItem }) => {
-  console.log("item", item);
+  // console.log("item", item);
   const dispatch = useDispatch();
   const navigation = useNavigation<NavigationProp<any>>();
   const convertViews = (views: number) => {
@@ -306,7 +315,7 @@ const Item = ({ item }: { item: ObjItem }) => {
       style={{
         width: itemWidth,
         height: itemHeight,
-        margin: 3,
+        margin: 2,
       }}
       onPress={() => {
         dispatch(setHideTabBar(true));
@@ -333,12 +342,18 @@ const Item = ({ item }: { item: ObjItem }) => {
           width: 110,
         }}
       >
-        <Ionicons name="play-outline" size={14} color="white" />
+        <Ionicons
+          name="play-outline"
+          size={14}
+          color="white"
+          style={{ alignSelf: "center" }}
+        />
         <Text
           style={{
             color: "white",
             fontWeight: "400",
             fontSize: 10,
+            alignSelf: "center",
           }}
         >
           {convertViews(item.views)} views

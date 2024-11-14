@@ -6,6 +6,7 @@ import {
   Pressable,
   FlatList,
   Dimensions,
+  TextInput,
 } from "react-native";
 import React from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -16,6 +17,7 @@ import * as apiUser from "../api/apiUser";
 import { useDispatch, useSelector } from "react-redux";
 import { count } from "firebase/firestore";
 import { setHideTabBar } from "../redux/tabBarSlice";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
 const { width, height } = Dimensions.get("window");
 const avatarSize = width * 0.14;
@@ -41,6 +43,9 @@ const FollowScreen = ({ route }: { route: any }) => {
   const [typeFilter, setTypeFilter] = useState(type);
   const [myFollower, setMyFollower] = useState<any>([]);
   const [myFollowing, setMyFollowing] = useState<any>([]);
+  const [search, setSearch] = useState("");
+  const [sortedList, setSortedList] = useState<ObjItem[]>([]);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
     const fetchMyFollower = async () => {
@@ -76,13 +81,35 @@ const FollowScreen = ({ route }: { route: any }) => {
     return count;
   };
 
+  useEffect(() => {
+    setSortedList(checkDisplay());
+  }, [typeFilter, search, myFollower, myFollowing]);
+
   const checkDisplay = () => {
-    if (typeFilter === "followers") {
-      return myFollower;
-    } else {
-      return myFollowing;
-    }
+    const list = typeFilter === "followers" ? myFollower : myFollowing;
+    const filteredList =
+      search.trim() === ""
+        ? list
+        : list.filter((item: ObjItem) =>
+            item.name.toLowerCase().includes(search.toLowerCase())
+          );
+    return filteredList;
   };
+
+  const sortList = () => {
+    const sorted = [...sortedList].sort((a, b) => {
+      if (sortOrder === "asc") {
+        return a.name.localeCompare(b.name);
+      } else {
+        return b.name.localeCompare(a.name);
+      }
+    });
+    setSortedList(sorted);
+  };
+
+  useEffect(() => {
+    sortList();
+  }, [sortOrder]);
 
   return (
     <View style={styles.container}>
@@ -102,8 +129,8 @@ const FollowScreen = ({ route }: { route: any }) => {
             source={{ uri: img }}
             style={{
               resizeMode: "contain",
-              width: avatarSize - 8,
-              height: avatarSize - 8,
+              width: avatarSize - avatarSize * 0.5,
+              height: avatarSize - avatarSize * 0.5,
               borderRadius: 50,
               padding: 2,
               margin: "auto",
@@ -113,16 +140,47 @@ const FollowScreen = ({ route }: { route: any }) => {
             {user}
           </Text>
         </View>
-        <View style={styles.userRight}>
-          <Pressable style={{ marginRight: 20, padding: 10 }}>
-            <Ionicons name="search-outline" size={24} color="black" />
-          </Pressable>
-          <Pressable style={{ padding: 10 }}>
-            <Ionicons name="filter-outline" size={24} color="black" />
-          </Pressable>
-        </View>
       </View>
+      <View style={styles.userRight}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <TextInput
+            style={styles.boxSearch}
+            placeholder="Search"
+            onChangeText={(text) => {
+              const timeoutId = setTimeout(() => setSearch(text), 1000);
+              return () => clearTimeout(timeoutId);
+            }}
+          />
+          <Ionicons
+            name="search-outline"
+            size={24}
+            color="black"
+            style={{
+              position: "absolute",
+              right: 20,
+              alignSelf: "center",
+            }}
+          />
+        </View>
 
+        <Pressable
+          style={{ padding: 10 }}
+          onPress={() => {
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+          }}
+        >
+          <FontAwesome5
+            name={sortOrder === "asc" ? "sort-amount-up" : "sort-amount-down"}
+            size={24}
+            color="black"
+          />
+        </Pressable>
+      </View>
       <View
         style={{
           flexDirection: "row",
@@ -167,8 +225,9 @@ const FollowScreen = ({ route }: { route: any }) => {
       </View>
       <View style={{ flex: 1 }}>
         <FlatList
-          data={checkDisplay()}
+          data={sortedList}
           renderItem={({ item }) => <Item item={item} />}
+          keyExtractor={(item) => item.userId}
         />
       </View>
     </View>
@@ -190,8 +249,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   userRight: {
-    marginLeft: "auto",
     flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   filterButton: {
     justifyContent: "center",
@@ -202,6 +262,15 @@ const styles = StyleSheet.create({
   filterActive: {
     borderBottomWidth: 3,
     borderBottomColor: "#F9A6C3",
+  },
+  boxSearch: {
+    height: 40,
+    width: width * 0.8,
+    margin: 12,
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 10,
+    borderColor: "#ccc",
   },
 });
 
