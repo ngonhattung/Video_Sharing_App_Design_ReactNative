@@ -8,11 +8,11 @@ import {
   Dimensions,
   TextInput,
 } from "react-native";
-import React from "react";
+import React, { useCallback } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState, useEffect } from "react";
 import { getFollowing, getFollower } from "../api/apiFollowing";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import * as apiUser from "../api/apiUser";
 import { useDispatch, useSelector } from "react-redux";
 import { count } from "firebase/firestore";
@@ -46,30 +46,36 @@ const FollowScreen = ({ route }: { route: any }) => {
   const [search, setSearch] = useState("");
   const [sortedList, setSortedList] = useState<ObjItem[]>([]);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const fetchMyFollower = async () => {
+    try {
+      const res = await apiUser.getFollower();
+      // console.log("fetchMyFollower", res);
+      setMyFollower(res);
+    } catch (error) {
+      console.log("fetchMyFollower", error);
+    }
+  };
 
+  const fetchMyFollowing = async () => {
+    try {
+      const res = await apiUser.getFollowing();
+      // console.log("fetchMyFollowing", res);
+      setMyFollowing(res);
+    } catch (error) {
+      console.log("fetchMyFollowing", error);
+    }
+  };
   useEffect(() => {
-    const fetchMyFollower = async () => {
-      try {
-        const res = await apiUser.getFollower();
-        console.log("fetchMyFollower", res);
-        setMyFollower(res);
-      } catch (error) {
-        console.log("fetchMyFollower", error);
-      }
-    };
-
-    const fetchMyFollowing = async () => {
-      try {
-        const res = await apiUser.getFollowing();
-        console.log("fetchMyFollowing", res);
-        setMyFollowing(res);
-      } catch (error) {
-        console.log("fetchMyFollowing", error);
-      }
-    };
     fetchMyFollower();
     fetchMyFollowing();
   }, [typeFilter]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchMyFollower();
+      fetchMyFollowing();
+    }, [])
+  );
 
   const checknFollow = (arr: any) => {
     let count = 0;

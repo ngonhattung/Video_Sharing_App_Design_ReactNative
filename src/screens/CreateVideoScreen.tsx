@@ -26,7 +26,7 @@ type PostVideoScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
   "PostVideoScreen"
 >;
-const CreateVideoScreen = () => {
+const CreateVideoScreen = ({ route }: any) => {
   const navigation = useNavigation<PostVideoScreenNavigationProp>();
   const dispatch = useDispatch();
   const [audio, setAudio] = useState([]);
@@ -35,6 +35,7 @@ const CreateVideoScreen = () => {
   const [modalFilterVisible, setModalFilterVisible] = useState(false);
   const [clearFilter, setClearFilter] = useState(false);
   const [btnChangeType, setBtnChangeType] = useState("for you");
+  const { audioName } = route.params || {};
 
   const toggleModal = () => {
     setModalVisible(!modalVisible);
@@ -67,9 +68,11 @@ const CreateVideoScreen = () => {
     });
 
     if (!result.canceled) {
-      setImageUri(result.assets[0].uri); // Lưu đường dẫn ảnh đã chọn
+      const uri = result.assets[0].uri;
+      setImageUri(uri); // Lưu đường dẫn ảnh đã chọn
     }
   };
+
   useEffect(() => {
     dispatch(setHideTabBar(true));
     const fetchUserAudio = async () => {
@@ -271,7 +274,7 @@ const CreateVideoScreen = () => {
             </View>
           </View>
         </Modal>
-        {!modalVisible ? (
+        {!modalVisible || audioName !== undefined ? (
           <View style={styles.content}>
             <TouchableOpacity
               onPress={() => {
@@ -312,7 +315,11 @@ const CreateVideoScreen = () => {
                     source={require("../assets/notemcden.png")}
                     style={{ marginBottom: 5 }}
                   />
-                  <Text style={{ color: "gray" }}>Add audio</Text>
+                  {audioName !== undefined ? (
+                    <Text style={{ color: "gray" }}>{audioName}</Text>
+                  ) : (
+                    <Text style={{ color: "gray" }}>Add audio</Text>
+                  )}
                 </View>
               </TouchableOpacity>
             </View>
@@ -389,7 +396,10 @@ const CreateVideoScreen = () => {
                 </View>
                 <TouchableOpacity
                   onPress={() => {
-                    navigation.navigate("PostVideoScreen");
+                    navigation.navigate("PostVideoScreen", {
+                      uriImage: imageUri,
+                      audioName: audioName,
+                    });
                   }}
                 >
                   <Image source={require("../assets/create.png")} />

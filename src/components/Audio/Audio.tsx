@@ -1,8 +1,18 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
-import { AudioProps } from "../../types/interfaces";
+import { AudioProps, RootStackParamList } from "../../types/interfaces";
 import Icon from "react-native-vector-icons/FontAwesome5";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+type PostVideoScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "CreateVideoScreen"
+>;
 const Audio: React.FC<AudioProps> = ({ audio, isPlaying, onPlay }) => {
+  const navigation = useNavigation<PostVideoScreenNavigationProp>();
+  const useAudio = () => {
+    navigation.navigate("CreateVideoScreen", { audioName: audio.name });
+  };
   return (
     <View
       style={
@@ -70,6 +80,7 @@ const Audio: React.FC<AudioProps> = ({ audio, isPlaying, onPlay }) => {
             borderRadius: 5,
             borderColor: "#F891B6",
           }}
+          onPress={useAudio}
         >
           <Text style={{ color: "#F891B6" }}>Use</Text>
         </TouchableOpacity>

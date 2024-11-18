@@ -11,6 +11,7 @@ import {
 import axiosInstance from "./axiosInstance";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../config/firebaseConfig";
 import { v4 as uuidv4 } from "uuid";
+import { Alert } from "react-native";
 const db = FIREBASE_DB;
 const auth = FIREBASE_AUTH;
 // export const getUserStory = async () => {
@@ -258,7 +259,7 @@ export const postComment = async (
       if (video.videoId === videoId) {
         return {
           ...video,
-          comments: [...video.comments, newComment], // Thêm bình luận vào mảng comments
+          comments: [...video.comments, newComment],
         };
       }
       return video;
@@ -289,9 +290,35 @@ export const saveVideo = async (videoLiked: any) => {
         console.error("User not found");
         return;
       }
+      // Lấy tài liệu người dùng mục tiêu để cập nhật video
+      const targetUserDocRef = doc(db, "users", videoLiked.userId);
+      const targetUserDoc = await getDoc(targetUserDocRef);
+      const targetUserData = targetUserDoc.data();
+
+      if (!targetUserData) {
+        console.error("Target user not found");
+        return;
+      }
+
+      const updatedLikeVideo = targetUserData.videos.map((video: any) => {
+        if (video.videoId === videoLiked.videoId) {
+          return {
+            ...video,
+            likes: video.likes + 1,
+          };
+        }
+        return video;
+      });
+
+      console.log("Updated videos:", updatedLikeVideo);
+      await updateDoc(targetUserDocRef, {
+        videos: updatedLikeVideo,
+      });
+
       await updateDoc(userDocRef, {
         saved: [...userData.saved, videoLiked],
       });
+
       console.log("Video saved ", [...userData.saved, videoLiked]);
     }
   } catch (error: any) {
@@ -311,6 +338,30 @@ export const unSaveVideo = async (videoUnLiked: any) => {
         console.error("User not found");
         return;
       }
+      // Lấy tài liệu người dùng mục tiêu để cập nhật video
+      const targetUserDocRef = doc(db, "users", videoUnLiked.userId);
+      const targetUserDoc = await getDoc(targetUserDocRef);
+      const targetUserData = targetUserDoc.data();
+
+      if (!targetUserData) {
+        console.error("Target user not found");
+        return;
+      }
+
+      const updatedLikeVideo = targetUserData.videos.map((video: any) => {
+        if (video.videoId === videoUnLiked.videoId) {
+          return {
+            ...video,
+            likes: video.likes - 1,
+          };
+        }
+        return video;
+      });
+
+      await updateDoc(targetUserDocRef, {
+        videos: updatedLikeVideo,
+      });
+
       await updateDoc(userDocRef, {
         saved: userData.saved.filter(
           (video: any) => video.videoId !== videoUnLiked.videoId
@@ -448,11 +499,15 @@ export const handleUnSaveFowllow = async (targetUserId: string) => {
         ),
       });
 
-
-
       await updateDoc(userDocRef, {
         friends: userData.friends.filter(
           (user: any) => user.userId !== targetUserId
+        ),
+      });
+
+      await updateDoc(targetUserDocRef, {
+        friends: targetUserData.friends.filter(
+          (user: any) => user.userId !== currentUserId
         ),
       });
     }
@@ -566,6 +621,42 @@ export const getFriendsOfMyFriends = async () => {
       }
 
       return listFindFriends;
+    }
+  } catch (error: any) {
+    console.error("Error:", error.message);
+  }
+};
+
+export const postVideo = async (video: any) => {
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const currentUserId = currentUser.uid;
+      const userDocRef = doc(db, "users", currentUserId);
+      const userDoc = await getDoc(userDocRef);
+      const userData = userDoc.data();
+      const videoId = uuidv4();
+      console.log("video", video);
+      const newVideo = {
+        videoId: videoId,
+        title: video.title,
+        hashtag: video.hashtags,
+        content: video.image,
+        audio: video.audio,
+        description: video.description,
+        views: 0,
+        likes: 0,
+        comments: [],
+        uploadDate: new Date().toISOString().split("T")[0],
+      };
+      if (!userData) {
+        console.error("User friend not found");
+        return;
+      }
+      console.log("newVideo", newVideo);
+      await updateDoc(userDocRef, {
+        videos: [...userData.videos, newVideo],
+      });
     }
   } catch (error: any) {
     console.error("Error:", error.message);

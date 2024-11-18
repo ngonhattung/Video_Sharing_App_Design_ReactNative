@@ -8,8 +8,12 @@ import {
   Dimensions,
   ScrollView,
 } from "react-native";
-import React, { useState, useEffect } from "react";
-import { useNavigation, NavigationProp } from "@react-navigation/native";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  useNavigation,
+  NavigationProp,
+  useFocusEffect,
+} from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useDispatch, useSelector } from "react-redux";
 import * as apiUser from "../api/apiUser";
@@ -39,18 +43,26 @@ const MyProfileScreen = () => {
   const [nLikes, setNLikes] = useState(0);
   const [selectedList, setSelectedList] = useState("videos");
   const navigation = useNavigation<NavigationProp<any>>();
+
+  const fetchMyProfile = async () => {
+    try {
+      const res = await apiUser.getUserProfileById(auth.userId);
+      // console.log("fetchMyProfile", res);
+      setMyProfile(res);
+    } catch (error) {
+      console.log("fetchMyProfile", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchMyProfile = async () => {
-      try {
-        const res = await apiUser.getUserProfileById(auth.userId);
-        console.log("fetchMyProfile", res);
-        setMyProfile(res);
-      } catch (error) {
-        console.log("fetchMyProfile", error);
-      }
-    };
     fetchMyProfile();
   }, [selectedList]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchMyProfile();
+    }, [])
+  );
 
   useEffect(() => {
     setNFollowers(myProfile?.followers.length);

@@ -11,7 +11,7 @@ import { NavigationProp, useNavigation } from "@react-navigation/native";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setHideTabBar } from "../redux/tabBarSlice";
 import * as apiUser from "../api/apiUser";
 import { Dimensions } from "react-native";
@@ -34,6 +34,7 @@ const convertNumberToString = (num: number) => {
 
 const ProfileDetailScreen = ({ route }: { route: any }) => {
   const dispatch = useDispatch();
+  const auth = useSelector((state: any) => state.auth);
   const { userTransfer } = route.params;
   const [typeFilter, setTypeFilter] = useState("videos");
   const navigation = useNavigation<NavigationProp<any>>();
@@ -41,13 +42,14 @@ const ProfileDetailScreen = ({ route }: { route: any }) => {
   const [nFollowers, setNFollowers] = useState(0);
   const [nFollowing, setNFollowing] = useState(0);
   const [nLikes, setNLikes] = useState(0);
-  const [statusFollow, setStatusFollow] = useState<any>(null);
-
+  const [statusFollow, setStatusFollow] = useState<any>("Follow");
+  const [statusButtonFollowAndMessage, setStatusButtonFollowAndMessage] =
+    useState(false);
   useEffect(() => {
     const fetchMyProfile = async () => {
       try {
         const res = await apiUser.getUserProfileById(userTransfer.userId);
-        console.log("fetchUserProfile", res);
+        // console.log("fetchUserProfile", res);
         setUserProfile(res);
       } catch (error) {
         console.log("fetchUserProfile", error);
@@ -56,38 +58,62 @@ const ProfileDetailScreen = ({ route }: { route: any }) => {
     fetchMyProfile();
   }, [typeFilter, statusFollow]);
 
+  const checkUser = () => {
+    // console.log("auth.userId", auth.userId);
+    // console.log("userTransfer.userId", userTransfer.userId);
+    // console.log(
+    //   "auth.userId === userTransfer.userId",
+    //   auth.userId === userTransfer.userId
+    // );
+    if (auth.userId === userTransfer.userId) {
+      setStatusButtonFollowAndMessage(false);
+    } else {
+      setStatusButtonFollowAndMessage(true);
+    }
+  };
   useEffect(() => {
-    const checkIsFriend = async () => {
+    const checkFriend = async () => {
       try {
         const res = await apiUser.checkIsFriend(userTransfer.userId);
         console.log("checkIsFriend", res);
         if (res === true) {
           setStatusFollow("Unfollow");
+          return;
         } else {
           setStatusFollow("Follow");
+          return;
         }
       } catch (error) {
         console.log("checkIsFriend", error);
       }
     };
-    checkIsFriend();
+    checkFriend();
+    checkUser();
     setNFollowers(userProfile?.followers.length);
     setNFollowing(userProfile?.following.length);
     setNLikes(countLikes(userProfile));
   }, [userProfile]);
+
   const handleFollowUser = async () => {
     if (statusFollow === "Follow") {
-      setStatusFollow("Unfollow");
-      console.log("userTransfer.userId", userTransfer.userId);
+      // console.log("userTransfer.userId", userTransfer.userId);
       try {
         await apiUser.handleSaveFowllow(userTransfer.userId);
+        // setStatusFollow("Unfollow");
+        console.log("Đã follow");
+        setStatusFollow("Unfollow");
+        console.log("statusFollow", statusFollow);
       } catch (error) {
         console.error(error);
       }
-    } else {
-      setStatusFollow("Follow");
+    }
+    if (statusFollow === "Unfollow") {
       try {
         await apiUser.handleUnSaveFowllow(userTransfer.userId);
+        // setStatusFollow("Follow");
+        console.log("Đã hủy unfollow");
+        setStatusFollow("Follow");
+        console.log("statusFollow", statusFollow);
       } catch (error) {
         console.error(error);
       }
@@ -201,44 +227,46 @@ const ProfileDetailScreen = ({ route }: { route: any }) => {
         </Pressable>
       </View>
 
-      <View
-        style={{
-          flexDirection: "row",
-          marginTop: 30,
-          alignSelf: "center",
-        }}
-      >
-        <Pressable
+      {statusButtonFollowAndMessage === true && (
+        <View
           style={{
-            borderRadius: 5,
-            padding: 10,
-            width: 100,
-            backgroundColor: "#fff0f5",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-          onPress={handleFollowUser}
-        >
-          <Text style={{ color: "#f54c87", fontSize: 15, fontWeight: 500 }}>
-            {statusFollow}
-          </Text>
-        </Pressable>
-        <Pressable
-          style={{
-            borderRadius: 5,
-            marginLeft: 30,
-            padding: 10,
-            width: 100,
-            backgroundColor: "#fff0f5",
-            justifyContent: "center",
-            alignItems: "center",
+            flexDirection: "row",
+            marginTop: 30,
+            alignSelf: "center",
           }}
         >
-          <Text style={{ color: "#f54c87", fontSize: 15, fontWeight: 500 }}>
-            Message
-          </Text>
-        </Pressable>
-      </View>
+          <Pressable
+            style={{
+              borderRadius: 5,
+              padding: 10,
+              width: 100,
+              backgroundColor: "#fff0f5",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onPress={handleFollowUser}
+          >
+            <Text style={{ color: "#f54c87", fontSize: 15, fontWeight: 500 }}>
+              {statusFollow}
+            </Text>
+          </Pressable>
+          <Pressable
+            style={{
+              borderRadius: 5,
+              marginLeft: 30,
+              padding: 10,
+              width: 100,
+              backgroundColor: "#fff0f5",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ color: "#f54c87", fontSize: 15, fontWeight: 500 }}>
+              Message
+            </Text>
+          </Pressable>
+        </View>
+      )}
 
       <View
         style={{

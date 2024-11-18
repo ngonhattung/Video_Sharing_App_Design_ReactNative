@@ -72,7 +72,7 @@ const SearchVideoScreen = () => {
     const fetchUserStreaming = async () => {
       try {
         const res = await apiUser.getUserStreaming();
-        console.log("fetchUserStreaming", res);
+        // console.log("fetchUserStreaming", res);
         setUserStreaming(res);
       } catch (error) {
         console.log("fetchUserStreaming", error);
@@ -245,7 +245,7 @@ const SearchVideoScreen = () => {
             data={sortUserStreaming(
               filterUserStreaming().slice(0, itemsToShow)
             )}
-            renderItem={({ item }) => <ItemStreaming userStreaming={item} />}
+            renderItem={({ item }) => <ItemStreaming item={item} />}
             keyExtractor={(item) => item.id}
             numColumns={2}
           />
@@ -260,7 +260,12 @@ const SearchVideoScreen = () => {
         )}
       </ScrollView>
 
-      <View style={{ marginHorizontal: "auto" }}>
+      <View
+        style={{
+          marginHorizontal: "auto",
+          paddingVertical: 20,
+        }}
+      >
         {itemsToShow <
           (selectedList === "streaming"
             ? filterUserStreaming().length
@@ -345,13 +350,21 @@ interface ObjItem {
   likes: number;
   comments: number;
 }
+
 const ItemVideo = ({ item }: { item: ObjItem }) => {
-  console.log("ItemVideo", item);
+  // console.log("ItemVideo", item);
   const dispatch = useDispatch();
-  // const navigation = useNavigation<NavigationProp<any>>();
-  // const pressOnProfile = (navigation: any) => {
-  //   navigation.navigate("ProfileDetailScreen");
-  // };
+  const navigation = useNavigation<NavigationProp<any>>();
+
+  const pressOnProfile = (navigation: any) => {
+    navigation.navigate("ProfileDetailScreen", {
+      userTransfer: {
+        userId: item.userId,
+        avatar: item.avatar,
+        name: item.userName,
+      },
+    });
+  };
   return (
     <View
       style={{
@@ -368,9 +381,9 @@ const ItemVideo = ({ item }: { item: ObjItem }) => {
         }}
         onPress={() => {
           dispatch(setHideTabBar(true));
-          // navigation.navigate("VideoWatchingScreen", {
-          //   videoTopTrending: item,
-          // });
+          navigation.navigate("VideoWatchingScreen", {
+            videoTopTrending: item,
+          });
         }}
       >
         <Image
@@ -422,7 +435,9 @@ const ItemVideo = ({ item }: { item: ObjItem }) => {
       </Text>
       <Pressable
         style={{ flexDirection: "row", alignItems: "center" }}
-        // onPress={() => pressOnProfile(navigation)}
+        onPress={() => {
+          pressOnProfile(navigation);
+        }}
       >
         <Image
           source={{ uri: item.avatar }}
@@ -455,12 +470,19 @@ interface UserStreamingType {
   };
 }
 
-const ItemStreaming = ({
-  userStreaming,
-}: {
-  userStreaming: UserStreamingType;
-}) => {
-  console.log("ItemStreaming", userStreaming);
+const ItemStreaming = ({ item }: { item: UserStreamingType }) => {
+  // console.log("ItemStreaming", item);
+  const dispatch = useDispatch();
+  const navigation = useNavigation<NavigationProp<any>>();
+  const pressOnProfile = (navigation: any) => {
+    navigation.navigate("ProfileDetailScreen", {
+      userTransfer: {
+        userId: item.id,
+        avatar: item.avatar,
+        name: item.name,
+      },
+    });
+  };
   return (
     <View
       style={{
@@ -475,15 +497,16 @@ const ItemStreaming = ({
           width: itemWidth,
           height: itemHeight,
         }}
-        // onPress={() => {
-        //   dispatch(setHideTabBar(true));
-        //   navigation.navigate("VideoWatchingScreen", {
-        //     videoTopTrending: item,
-        //   });
-        // }}
+        onPress={() => {
+          dispatch(setHideTabBar(true));
+          // console.log("item da nhan", item);
+          navigation.navigate("VideoStreamingScreen", {
+            userStreaming: item,
+          });
+        }}
       >
         <Image
-          source={{ uri: userStreaming.liveStream.content }}
+          source={{ uri: item.liveStream.content }}
           style={{
             width: itemWidth,
             height: itemHeight,
@@ -514,7 +537,7 @@ const ItemStreaming = ({
               alignSelf: "center",
             }}
           >
-            {convertNumberToString(userStreaming.liveStream.viewers)} views
+            {convertNumberToString(item.liveStream.viewers)} views
           </Text>
         </View>
       </Pressable>
@@ -527,14 +550,16 @@ const ItemStreaming = ({
           marginVertical: 10,
         }}
       >
-        {userStreaming.liveStream.streamTitle}
+        {item.liveStream.streamTitle}
       </Text>
       <Pressable
         style={{ flexDirection: "row", alignItems: "center" }}
-        // onPress={() => pressOnProfile(navigation)}
+        onPress={() => {
+          pressOnProfile(navigation);
+        }}
       >
         <Image
-          source={{ uri: userStreaming.avatar }}
+          source={{ uri: item.avatar }}
           style={{
             width: avatarSize,
             height: avatarSize,
@@ -544,7 +569,7 @@ const ItemStreaming = ({
           }}
         />
         <Text style={{ fontSize: 12, fontWeight: 600, color: "#777" }}>
-          {userStreaming.name}
+          {item.name}
         </Text>
       </Pressable>
     </View>
