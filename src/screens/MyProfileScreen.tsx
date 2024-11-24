@@ -7,6 +7,8 @@ import {
   FlatList,
   Dimensions,
   ScrollView,
+  Modal,
+  TextInput,
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
 import {
@@ -14,6 +16,7 @@ import {
   NavigationProp,
   useFocusEffect,
 } from "@react-navigation/native";
+import { launchImageLibrary } from "react-native-image-picker";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useDispatch, useSelector } from "react-redux";
 import * as apiUser from "../api/apiUser";
@@ -43,11 +46,34 @@ const MyProfileScreen = () => {
   const [nLikes, setNLikes] = useState(0);
   const [selectedList, setSelectedList] = useState("videos");
   const navigation = useNavigation<NavigationProp<any>>();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [avatar, setAvatar] = useState(""); // Default avatar URL
+  const [name, setName] = useState(""); // Default name
+  const handleEditProfilePress = () => {
+    setModalVisible(true);
+  };
+  const handleAvatarPress = () => {
+    launchImageLibrary({ mediaType: "photo" }, (response) => {
+      if (response.assets && response.assets.length > 0) {
+        setAvatar(response.assets[0].uri || "");
+      }
+    });
+  };
+  const handleSave = async () => {
+    try {
+      const res = await apiUser.updateProfile(name, avatar);
+      console.log("handleSave", res);
+      fetchMyProfile();
+      setModalVisible(!modalVisible);
+    } catch (error) {
+      console.log("handleSave", error);
+    }
+  };
 
   const fetchMyProfile = async () => {
     try {
       const res = await apiUser.getUserProfileById(auth.userId);
-      // console.log("fetchMyProfile", res);
+      console.log("fetchMyProfile", res);
       setMyProfile(res);
     } catch (error) {
       console.log("fetchMyProfile", error);
@@ -68,6 +94,8 @@ const MyProfileScreen = () => {
     setNFollowers(myProfile?.followers.length);
     setNFollowing(myProfile?.following.length);
     setNLikes(countLikes(myProfile));
+    setAvatar(myProfile?.avatar);
+    setName(myProfile?.name);
   }, [myProfile]);
 
   const countLikes = (arr: any) => {
@@ -118,7 +146,10 @@ const MyProfileScreen = () => {
           </Pressable>
         </View>
         <View style={styles.navRight}>
-          <Pressable style={{ flexDirection: "row", alignItems: "center" }}>
+          <Pressable
+            style={{ flexDirection: "row", alignItems: "center" }}
+            onPress={handleEditProfilePress}
+          >
             <Ionicons name="pencil-sharp" size={24} color="#F9A6C3" />
             <Text
               style={{ color: "#F9A6C3", marginLeft: 5, fontSize: textSize }}
@@ -126,6 +157,40 @@ const MyProfileScreen = () => {
               Edit profile
             </Text>
           </Pressable>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              setModalVisible(!modalVisible);
+            }}
+          >
+            <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+                <Pressable onPress={handleAvatarPress}>
+                  <Image source={{ uri: avatar }} style={styles.avatar} />
+                </Pressable>
+                <TextInput
+                  style={styles.input}
+                  onChangeText={setName}
+                  value={name}
+                  placeholder="Enter your name"
+                />
+                <Pressable
+                  style={[styles.button, styles.buttonSave]}
+                  onPress={handleSave}
+                >
+                  <Text style={styles.textStyle}>Save</Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.button, styles.buttonClose]}
+                  onPress={() => setModalVisible(!modalVisible)}
+                >
+                  <Text style={styles.textStyle}>Close</Text>
+                </Pressable>
+              </View>
+            </View>
+          </Modal>
         </View>
       </View>
 
@@ -291,6 +356,68 @@ const styles = StyleSheet.create({
   activeFilter: {
     borderBottomWidth: 4,
     borderBottomColor: "#F9A6C3",
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    width: "80%",
+  },
+  button: {
+    borderRadius: 5,
+    padding: 15,
+    elevation: 2,
+    width: "80%",
+    margin: 10,
+  },
+  buttonClose: {
+    backgroundColor: "#2196F3",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  avatar: {
+    width: avatarSize,
+    height: avatarSize,
+    borderRadius: 50,
+    marginBottom: 15,
+    padding: 3,
+    marginVertical: 10,
+  },
+  input: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    marginBottom: 15,
+    paddingHorizontal: 10,
+    width: "80%",
+    fontSize: textSize,
+    fontWeight: 500,
+  },
+  buttonSave: {
+    backgroundColor: "#4CAF50",
   },
 });
 

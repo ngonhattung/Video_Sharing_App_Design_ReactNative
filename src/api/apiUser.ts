@@ -737,3 +737,33 @@ export const getAllVideos = async () => {
     console.error("Error fetching all videos:", error.message);
   }
 };
+
+// update profile of current user include name, avatar
+export const updateProfile = async (name: string, avatar: string) => {
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const currentUserId = currentUser.uid;
+      const userDocRef = doc(db, "users", currentUserId);
+      console.log("userDocRef", userDocRef);
+      const userDoc = await getDoc(userDocRef);
+      const userData = userDoc.data();
+      
+      if (!userData) {
+        console.error("User not found");
+        return;
+      }
+
+      
+      // await updateDoc(userDocRef, {
+      //   name: name,
+      //   avatar: avatar,
+      // });
+
+      return { name, avatar };
+    }
+  } catch (error: any) {
+    console.error("Error:", error.message);
+  }
+};
+
