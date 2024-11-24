@@ -47,7 +47,6 @@ const CreateVideoScreen = ({ route }: any) => {
     setClearFilter(true);
   };
   const [imageUri, setImageUri] = useState<any>(null);
-
   const selectImage = async () => {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
