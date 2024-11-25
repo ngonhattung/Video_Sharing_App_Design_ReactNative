@@ -504,6 +504,12 @@ export const handleUnSaveFowllow = async (targetUserId: string) => {
           (user: any) => user.userId !== targetUserId
         ),
       });
+
+      await updateDoc(targetUserDocRef, {
+        friends: targetUserData.friends.filter(
+          (user: any) => user.userId !== currentUserId
+        ),
+      });
     }
   } catch (error: any) {
     console.error("Error :", error.message);
@@ -651,6 +657,109 @@ export const postVideo = async (video: any) => {
       await updateDoc(userDocRef, {
         videos: [...userData.videos, newVideo],
       });
+    }
+  } catch (error: any) {
+    console.error("Error:", error.message);
+  }
+};
+
+// get user profile by id
+export const getUserProfileById = async (userId: string) => {
+  try {
+    const userDocRef = doc(db, "users", userId);
+    const userDoc = await getDoc(userDocRef);
+    const userData = userDoc.data();
+    return userData;
+  } catch (error: any) {
+    console.error("Error fetching user profile:", error.message);
+  }
+};
+
+// chech user is friend
+export const checkIsFriend = async (userId: string) => {
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const currentUserId = currentUser.uid;
+      const userDocRef = doc(db, "users", currentUserId);
+      const userDoc = await getDoc(userDocRef);
+      const userData = userDoc.data();
+
+      if (!userData) {
+        console.error("User not found");
+        return;
+      }
+
+      return userData.friends.some((friend: any) => friend.userId === userId);
+    }
+  } catch (error: any) {
+    console.error("Error:", error.message);
+  }
+};
+
+// get all video of all users
+export const getAllVideos = async () => {
+  try {
+    const usersCollectionRef = collection(db, "users");
+    const querySnapshot = await getDocs(usersCollectionRef);
+
+    const allVideos: any = [];
+
+    querySnapshot.forEach((doc) => {
+      const user = doc.data();
+
+      if (Array.isArray(user.videos)) {
+        user.videos.forEach((video: any) => {
+          allVideos.push({
+            userId: doc.id,
+            avatar: user.avatar,
+            userName: user.name,
+            videoId: video.videoId,
+            title: video.title,
+            hashtag: video.hashtag,
+            content: video.content,
+            audio: video.audio,
+            views: video.views,
+            likes: video.likes,
+            comments: video.comments,
+          });
+        });
+      } else {
+        console.error(
+          "User does not have videos or videos is not an array",
+          doc.id
+        );
+      }
+    });
+
+    return allVideos;
+  } catch (error: any) {
+    console.error("Error fetching all videos:", error.message);
+  }
+};
+
+// update profile of current user include name, avatar
+export const updateProfile = async (name: string, avatar: string) => {
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const currentUserId = currentUser.uid;
+      const userDocRef = doc(db, "users", currentUserId);
+      console.log("userDocRef", userDocRef);
+      const userDoc = await getDoc(userDocRef);
+      const userData = userDoc.data();
+
+      if (!userData) {
+        console.error("User not found");
+        return;
+      }
+
+      // await updateDoc(userDocRef, {
+      //   name: name,
+      //   avatar: avatar,
+      // });
+
+      return { name, avatar };
     }
   } catch (error: any) {
     console.error("Error:", error.message);
