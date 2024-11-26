@@ -605,7 +605,12 @@ export const getFriendsOfMyFriends = async () => {
           }
 
           friendData.friends.forEach((friend: any) => {
-            if (friend.userId !== currentUserId) {
+            if (
+              friend.userId !== currentUserId &&
+              !userData.following.some(
+                (following: any) => following.userId === friend.userId
+              )
+            ) {
               const friendWithCustomFields = {
                 ...friend,
                 userIdFriend: friendUserId,
@@ -745,7 +750,7 @@ export const updateProfile = async (name: string, avatar: string) => {
     if (currentUser) {
       const currentUserId = currentUser.uid;
       const userDocRef = doc(db, "users", currentUserId);
-      console.log("userDocRef", userDocRef);
+
       const userDoc = await getDoc(userDocRef);
       const userData = userDoc.data();
 
@@ -754,12 +759,35 @@ export const updateProfile = async (name: string, avatar: string) => {
         return;
       }
 
-      // await updateDoc(userDocRef, {
-      //   name: name,
-      //   avatar: avatar,
-      // });
+      await updateDoc(userDocRef, {
+        name: name,
+        avatar: avatar,
+      });
 
       return { name, avatar };
+    }
+  } catch (error: any) {
+    console.error("Error:", error.message);
+  }
+};
+// viết hàm kiểm tra xem người dùng đã theo dõi người dùng mục tiêu chưa
+export const checkIsFollowing = async (targetUserId: string) => {
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const currentUserId = currentUser.uid;
+      const userDocRef = doc(db, "users", currentUserId);
+      const userDoc = await getDoc(userDocRef);
+      const userData = userDoc.data();
+
+      if (!userData) {
+        console.error("User not found");
+        return;
+      }
+
+      return userData.following.some(
+        (following: any) => following.userId === targetUserId
+      );
     }
   } catch (error: any) {
     console.error("Error:", error.message);

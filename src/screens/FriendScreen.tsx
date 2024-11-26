@@ -1,34 +1,61 @@
 import { View, Text, StyleSheet } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { TextInput } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import FriendList from "../components/FriendList/FriendList";
 import * as apiUser from "../api/apiUser";
 import FriendRecommend from "../components/Friend/FriendRecommend";
 import FriendListRecommend from "../components/FriendList/FriendListRecommend";
+import { useFocusEffect } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchFriendRecommend } from "../redux/friendRecommendSlice";
+import { friendRecommendSelector } from "../redux/selectors";
 const FriendScreen = () => {
+  const dispatch = useDispatch<any>();
   const [friends, setFriends] = useState([]);
-  const [recommendFriends, setRecommendFriends] = useState([]);
+  //const [recommendFriends, setRecommendFriends] = useState([]);
+  const fetchFriends = async () => {
+    try {
+      const result = await apiUser.getFriends();
+      setFriends(result);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  // const fetchRecommendFriends = async () => {
+  //   try {
+  //     const result = await apiUser.getFriendsOfMyFriends();
+  //     setRecommendFriends(result);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+  // const fetchRecommendFriends = async () => {
+  //   try {
+  //     const result = await apiUser.getFriendsOfMyFriends();
+  //     return result;
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+
   useEffect(() => {
-    const fetchFriends = async () => {
-      try {
-        const result = await apiUser.getFriends();
-        setFriends(result);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    const fetchRecommendFriends = async () => {
-      try {
-        const result = await apiUser.getFriendsOfMyFriends();
-        setRecommendFriends(result);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchRecommendFriends();
+    dispatch(fetchFriendRecommend());
     fetchFriends();
   }, []);
+
+  // useEffect(() => {
+  //   fetchRecommendFriends();
+  //   fetchFriends();
+  // }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(fetchFriendRecommend());
+      fetchFriends();
+    }, [])
+  );
+  const recommendFriends = useSelector(friendRecommendSelector);
   return (
     <View style={styles.container}>
       <View style={styles.header}>

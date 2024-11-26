@@ -72,10 +72,11 @@ const ProfileDetailScreen = ({ route }: { route: any }) => {
     }
   };
   useEffect(() => {
-    const checkFriend = async () => {
+    const checkFollowing = async () => {
       try {
-        const res = await apiUser.checkIsFriend(userTransfer.userId);
-        console.log("checkIsFriend", res);
+        // const res = await apiUser.checkIsFriend(userTransfer.userId);
+        const res = await apiUser.checkIsFollowing(userTransfer.userId);
+        console.log("checkIsFollowing", res);
         if (res === true) {
           setStatusFollow("Unfollow");
           return;
@@ -84,10 +85,10 @@ const ProfileDetailScreen = ({ route }: { route: any }) => {
           return;
         }
       } catch (error) {
-        console.log("checkIsFriend", error);
+        console.log("checkIsFollowing", error);
       }
     };
-    checkFriend();
+    checkFollowing();
     checkUser();
     setNFollowers(userProfile?.followers.length);
     setNFollowing(userProfile?.following.length);

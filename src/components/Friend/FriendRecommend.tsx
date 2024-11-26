@@ -3,13 +3,15 @@ import React from "react";
 import { FriendRecommendProps } from "../../types/interfaces";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { Image } from "react-native";
-import * as apiUser from "../../api/apiUser";
+import { useDispatch } from "react-redux";
+import { removeFriendRecommend } from "../../redux/friendRecommendSlice";
 const FriendRecommend: React.FC<FriendRecommendProps> = ({
   friendRecommend,
 }) => {
+  const dispatch = useDispatch<any>();
   const handleFollowUser = async () => {
     try {
-      await apiUser.handleSaveFowllow(friendRecommend.userId);
+      dispatch(removeFriendRecommend(friendRecommend.userId));
     } catch (error) {
       console.error(error);
     }
@@ -78,6 +80,7 @@ const FriendRecommend: React.FC<FriendRecommendProps> = ({
             padding: 10,
             marginRight: 10,
           }}
+          onPress={handleFollowUser}
         >
           <Text
             style={{
@@ -88,7 +91,6 @@ const FriendRecommend: React.FC<FriendRecommendProps> = ({
             Follow
           </Text>
         </TouchableOpacity>
-        <Icon name="times" size={20} color={"#9495A2"} />
       </View>
     </View>
   );

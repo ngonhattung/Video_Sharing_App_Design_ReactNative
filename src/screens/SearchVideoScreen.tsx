@@ -457,4 +457,121 @@ const ItemVideo = ({ item }: { item: ObjItem }) => {
   );
 };
 
-export default SearchVideoScreen;
+interface UserStreamingType {
+  id: string;
+  name: string;
+  avatar: string;
+  liveStream: {
+    isLive: boolean;
+    streamTitle: string;
+    content: string;
+    viewers: number;
+    minutesAgo: number;
+  };
+}
+
+const ItemStreaming = ({ item }: { item: UserStreamingType }) => {
+  // console.log("ItemStreaming", item);
+  const dispatch = useDispatch();
+  const navigation = useNavigation<NavigationProp<any>>();
+  const pressOnProfile = (navigation: any) => {
+    navigation.navigate("ProfileDetailScreen", {
+      userTransfer: {
+        userId: item.id,
+        avatar: item.avatar,
+        name: item.name,
+      },
+    });
+  };
+  return (
+    <View
+      style={{
+        margin: 15,
+        width: itemWidth,
+        height: itemHeightContainer,
+      }}
+    >
+      {/* pressOn Video */}
+      <Pressable
+        style={{
+          width: itemWidth,
+          height: itemHeight,
+        }}
+        onPress={() => {
+          dispatch(setHideTabBar(true));
+          // console.log("item da nhan", item);
+          navigation.navigate("VideoStreamingScreen", {
+            userStreaming: item,
+          });
+        }}
+      >
+        <Image
+          source={{ uri: item.liveStream.content }}
+          style={{
+            width: itemWidth,
+            height: itemHeight,
+            borderRadius: 5,
+            margin: "auto",
+          }}
+        />
+        <View
+          style={{
+            position: "absolute",
+            bottom: 5,
+            left: 5,
+            flexDirection: "row",
+            width: 110,
+          }}
+        >
+          <Ionicons
+            name="eye-outline"
+            size={24}
+            color="red"
+            style={{ alignSelf: "center" }}
+          />
+          <Text
+            style={{
+              color: "white",
+              fontWeight: "400",
+              fontSize: 10,
+              alignSelf: "center",
+            }}
+          >
+            {convertNumberToString(item.liveStream.viewers)} views
+          </Text>
+        </View>
+      </Pressable>
+      {/* info */}
+      <Text
+        style={{
+          fontSize: 15,
+          fontWeight: 600,
+          color: "#777",
+          marginVertical: 10,
+        }}
+      >
+        {item.liveStream.streamTitle}
+      </Text>
+      <Pressable
+        style={{ flexDirection: "row", alignItems: "center" }}
+        onPress={() => {
+          pressOnProfile(navigation);
+        }}
+      >
+        <Image
+          source={{ uri: item.avatar }}
+          style={{
+            width: avatarSize,
+            height: avatarSize,
+            borderRadius: 50,
+            marginRight: 10,
+            padding: 3,
+          }}
+        />
+        <Text style={{ fontSize: 12, fontWeight: 600, color: "#777" }}>
+          {item.name}
+        </Text>
+      </Pressable>
+    </View>
+  );
+};

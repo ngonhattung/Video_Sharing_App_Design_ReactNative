@@ -75,7 +75,7 @@ interface FriendType {
   name: string;
   avatar: string;
 }
-interface FriendRecommendType {
+export interface FriendRecommendType {
   userId: string;
   name: string;
   avatar: string;
